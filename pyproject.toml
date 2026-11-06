@@ -1,0 +1,44 @@
+[project]
+name = "ca-wildfire-elt"
+version = "0.1.0"
+description = "Idempotent ELT pipeline over 90 daily snapshots of California's 2021 wildfire feed."
+readme = "README.md"
+requires-python = ">=3.12,<3.14"
+dependencies = [
+    "dbt-core>=1.10,<2",
+    "dbt-duckdb>=1.10,<2",
+    "duckdb>=1.3",
+    "pydantic>=2.8,<3",
+]
+
+[project.scripts]
+wildfire = "wildfire.cli:main"
+
+[dependency-groups]
+dev = ["mypy>=1.11", "pytest>=8", "ruff>=0.6", "sqlfluff>=3.2"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/wildfire"]
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "S", "SIM"]
+ignore = ["S603", "S607"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101"]
+
+[tool.mypy]
+strict = true
+files = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["integration: runs dbt against a temporary warehouse"]

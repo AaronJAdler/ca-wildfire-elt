@@ -1,0 +1,17 @@
+version: 2
+
+sources:
+  - name: bronze
+    description: Immutable daily snapshots of the CAL FIRE incident feed, written by the extractor.
+    tables:
+      - name: incidents
+        description: One row per incident per snapshot date, with the published record as raw JSON.
+        config:
+          external_location: "read_parquet('{{ env_var('WILDFIRE_DATA_DIR') }}/bronze/incidents/dt=*/data.parquet')"
+        columns:
+          - name: snapshot_date
+            data_tests: [not_null]
+          - name: unique_id
+            data_tests: [not_null]
+          - name: raw_json
+            data_tests: [not_null]

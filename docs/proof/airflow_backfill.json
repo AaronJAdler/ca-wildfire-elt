@@ -1,0 +1,51 @@
+{
+  "airflow_version": "3.3.2",
+  "window": [
+    "2021-07-15",
+    "2021-10-15"
+  ],
+  "dag_runs": 93,
+  "dag_runs_succeeded": 93,
+  "dbt_build_tasks_run": 90,
+  "task_retries": 0,
+  "days_skipped_no_snapshot": [
+    "2021-10-04",
+    "2021-10-05",
+    "2021-10-06"
+  ],
+  "warehouse_identical_to_direct_replay": true,
+  "tables": {
+    "main.dim_county": {
+      "rows": 58,
+      "md5": "009966d3adab39a147591fe7683cb62b"
+    },
+    "main.dim_date": {
+      "rows": 93,
+      "md5": "26b94bb0316a21859747b4594a6517a6"
+    },
+    "main.dim_incident": {
+      "rows": 121,
+      "md5": "cdb966893a58c0495f6df88c126933b7"
+    },
+    "main.bridge_incident_county": {
+      "rows": 90,
+      "md5": "00df4d6b98be1e1d66862e4c19b440a8"
+    },
+    "main.fct_incident_daily": {
+      "rows": 1311,
+      "md5": "455147fab3d38bfd51e8c189ab701923"
+    },
+    "main.mart_incident_season": {
+      "rows": 78,
+      "md5": "f882278ab807f2632edbe7666be5d0aa"
+    },
+    "main.mart_statewide_daily": {
+      "rows": 93,
+      "md5": "bc9c602c8fa7515cbb7e40d21c056689"
+    },
+    "snapshots.snap_incident": {
+      "rows": 121,
+      "md5": "71bf96a9354d28a52957bef65ca84cf4"
+    }
+  }
+}

@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>California Fire Season 2021</title>
+<style>
+:root {
+  color-scheme: light;
+  --page: #f9f9f7; --surface: #fcfcfb; --ink: #0b0b0b; --ink-2: #52514e; --muted: #6f6d68;
+  --grid: #e1e0d9; --axis: #c3c2b7; --ring: rgba(11,11,11,.10);
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --critical: #d03b3b;
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink-2: #c3c2b7; --muted: #a3a29b;
+    --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,.10);
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink-2: #c3c2b7; --muted: #a3a29b;
+  --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,.10);
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--page); color: var(--ink);
+  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+main { max-width: 1040px; margin: 0 auto; padding: 32px 16px 56px; }
+h1 { font-size: 26px; line-height: 1.25; font-weight: 650; margin: 0 0 6px; max-width: 34em; text-wrap: balance; }
+h2 { font-size: 16px; font-weight: 650; margin: 0 0 2px; }
+.lead { color: var(--ink-2); margin: 0 0 24px; max-width: 46em; }
+.hero-row { display: grid; grid-template-columns: 1.5fr repeat(3, 1fr); gap: 12px; margin-bottom: 12px; }
+.card {
+  background: var(--surface); border: 1px solid var(--ring); border-radius: 10px;
+  padding: 16px; min-width: 0; margin-bottom: 12px;
+}
+.hero-row .card { margin: 0; }
+.label { color: var(--ink-2); font-size: 13px; }
+.hero { font-size: 48px; font-weight: 650; line-height: 1.1; margin-top: 4px; }
+.value { font-size: 26px; font-weight: 650; line-height: 1.2; margin-top: 8px; }
+.note { color: var(--muted); font-size: 12.5px; margin-top: 4px; }
+.sub { color: var(--ink-2); font-size: 13.5px; margin: 0 0 10px; }
+.chart { position: relative; width: 100%; touch-action: pan-y; }
+.chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 13px; color: var(--ink-2); margin-bottom: 8px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.key { display: inline-block; width: 14px; height: 2px; border-radius: 1px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.panel-title { font-size: 13px; font-weight: 600; }
+.panel-note { font-size: 12.5px; color: var(--ink-2); margin-bottom: 4px; }
+text { font: 11.5px system-ui, -apple-system, "Segoe UI", sans-serif; fill: var(--muted); font-variant-numeric: tabular-nums; }
+text.direct { fill: var(--ink-2); font-size: 12px; }
+#tooltip {
+  position: fixed; z-index: 10; pointer-events: none; display: none; min-width: 150px; max-width: 280px;
+  background: var(--surface); border: 1px solid var(--axis); border-radius: 8px; padding: 8px 10px;
+  box-shadow: 0 4px 16px rgba(0,0,0,.14); font-size: 12.5px;
+}
+#tooltip .when { color: var(--ink-2); margin-bottom: 4px; }
+#tooltip .row { display: flex; align-items: center; gap: 7px; }
+#tooltip .row strong { font-variant-numeric: tabular-nums; }
+#tooltip .row small { color: var(--ink-2); font-size: 12px; }
+details { margin-top: 10px; font-size: 13px; }
+summary { cursor: pointer; color: var(--ink-2); }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th { text-align: left; font-weight: 600; color: var(--ink-2); border-bottom: 1px solid var(--axis); padding: 6px 10px 6px 0; white-space: nowrap; }
+td { border-bottom: 1px solid var(--grid); padding: 6px 10px 6px 0; }
+th.n, td.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+ul.findings { margin: 8px 0 0; padding-left: 18px; }
+ul.findings li { margin-bottom: 6px; }
+footer { color: var(--muted); font-size: 12.5px; margin-top: 18px; }
+footer a { color: inherit; }
+@media (max-width: 760px) {
+  .hero-row { grid-template-columns: 1fr 1fr; }
+  .hero-row .card:first-child { grid-column: 1 / -1; }
+  .grid-4 { grid-template-columns: 1fr 1fr; }
+  .hero { font-size: 40px; }
+}
+</style>
+</head>
+<body>
+<main>
+  <h1 id="headline"></h1>
+  <p class="lead" id="lead"></p>
+  <section class="hero-row" id="tiles" aria-label="Season totals"></section>
+
+  <section class="card">
+    <h2>Fire size over the season</h2>
+    <p class="sub">Latest known acreage for the four largest fires. A fire's line holds its last value on days the feed gave none.</p>
+    <div class="legend" id="size-legend"></div>
+    <div class="chart" id="size-chart"></div>
+    <details><summary>Table view</summary><div class="scroll" id="size-table"></div></details>
+  </section>
+
+  <section class="card">
+    <h2>Acres added statewide per day</h2>
+    <p class="sub">Each fire counts once per day, on the day its acreage is reported. A bar can therefore hold many days of growth, and the shaded band marks days the feed published nothing. <span id="spike-note"></span></p>
+    <div class="chart" id="added-chart"></div>
+    <details><summary>Table view</summary><div class="scroll" id="added-table"></div></details>
+  </section>
+
+  <section class="card">
+    <h2>Containment progress</h2>
+    <p class="sub">Percent contained, on one scale. The figure can fall when a fire's perimeter grows.</p>
+    <div class="grid-4" id="containment"></div>
+  </section>
+
+  <section class="card">
+    <h2>Largest fires in the feed</h2>
+    <p class="sub">Peak daily growth uses only values reported on two consecutive days. Days to 50% count from the fire's start date.</p>
+    <div class="scroll" id="fire-table"></div>
+  </section>
+
+  <section class="card">
+    <h2>How far to trust this data</h2>
+    <ul class="findings" id="findings"></ul>
+  </section>
+
+  <footer>
+    Source: CAL FIRE incident feed, as recorded by
+    <a href="https://github.com/simonw/ca-fires-history">simonw/ca-fires-history</a>.
+    Figures cover only what that feed published from July 15 to October 15, 2021. They are not official season totals.
+  </footer>
+</main>
+<div id="tooltip" role="status"></div>
+
+<script id="data" type="application/json">{"topFires":[{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","incident_name":"Dixie Fire","county_names":"Butte, Plumas, Shasta, Lassen, Tehama","peak_acres":963309.0,"latest_percent_contained":94.0,"first_seen_date":"2021-07-15","days_in_feed":90,"peak_daily_growth_acres":110311.0,"peak_growth_date":"2021-08-06","days_from_start_to_50_percent_contained":49,"share_of_days_carried_forward":0.13333333333333333,"peak_structures_destroyed":1329},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","incident_name":"Caldor Fire","county_names":"El Dorado, Alpine, Amador","peak_acres":219267.0,"latest_percent_contained":71.0,"first_seen_date":"2021-08-15","days_in_feed":59,"peak_daily_growth_acres":47272.0,"peak_growth_date":"2021-08-18","days_from_start_to_50_percent_contained":25,"share_of_days_carried_forward":0.4406779661016949,"peak_structures_destroyed":1003},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","incident_name":"Monument Fire","county_names":"Trinity","peak_acres":181617.0,"latest_percent_contained":37.0,"first_seen_date":"2021-08-02","days_in_feed":72,"peak_daily_growth_acres":13637.0,"peak_growth_date":"2021-08-20","days_from_start_to_50_percent_contained":null,"share_of_days_carried_forward":0.5,"peak_structures_destroyed":50},{"unique_id":"d0174b70-8652-4242-bf7f-b00e98a48319","incident_name":"McFarland Fire","county_names":"Shasta, Trinity, Tehama","peak_acres":122653.0,"latest_percent_contained":93.0,"first_seen_date":"2021-07-30","days_in_feed":52,"peak_daily_growth_acres":4980.0,"peak_growth_date":"2021-08-20","days_from_start_to_50_percent_contained":19,"share_of_days_carried_forward":0.4230769230769231,"peak_structures_destroyed":null},{"unique_id":"11804a96-faa3-4671-b420-6591e4e95f49","incident_name":"French Fire","county_names":"Kern","peak_acres":26702.0,"latest_percent_contained":52.0,"first_seen_date":"2021-08-19","days_in_feed":55,"peak_daily_growth_acres":6838.0,"peak_growth_date":"2021-08-21","days_from_start_to_50_percent_contained":18,"share_of_days_carried_forward":0.6545454545454545,"peak_structures_destroyed":null},{"unique_id":"2acb95c8-7a0b-4bfc-9174-6da944037bf2","incident_name":"River Fire","county_names":"Mariposa","peak_acres":9656.0,"latest_percent_contained":97.0,"first_seen_date":"2021-07-15","days_in_feed":5,"peak_daily_growth_acres":156.0,"peak_growth_date":"2021-07-17","days_from_start_to_50_percent_contained":5,"share_of_days_carried_forward":0.0,"peak_structures_destroyed":12},{"unique_id":"1052ac46-526c-4ca1-a75c-7e91920ee6cb","incident_name":"Fawn Fire","county_names":"Shasta","peak_acres":8595.0,"latest_percent_contained":90.0,"first_seen_date":"2021-09-23","days_in_feed":10,"peak_daily_growth_acres":4650.0,"peak_growth_date":"2021-09-24","days_from_start_to_50_percent_contained":5,"share_of_days_carried_forward":0.0,"peak_structures_destroyed":185},{"unique_id":"178aba5f-4c67-4830-891d-b8fec84706da","incident_name":"River Fire","county_names":"Nevada, Placer","peak_acres":2619.0,"latest_percent_contained":95.0,"first_seen_date":"2021-08-04","days_in_feed":10,"peak_daily_growth_acres":2300.0,"peak_growth_date":"2021-08-05","days_from_start_to_50_percent_contained":4,"share_of_days_carried_forward":0.0,"peak_structures_destroyed":142},{"unique_id":"64a7c61a-5634-410a-a1c4-aeb97b2283e0","incident_name":"Chaparral Fire","county_names":"Riverside, San Diego","peak_acres":1427.0,"latest_percent_contained":80.0,"first_seen_date":"2021-08-28","days_in_feed":17,"peak_daily_growth_acres":1175.0,"peak_growth_date":"2021-08-29","days_from_start_to_50_percent_contained":3,"share_of_days_carried_forward":0.7058823529411765,"peak_structures_destroyed":null},{"unique_id":"4cfd11fa-b33f-4de6-8d17-bbaa27b2c9cb","incident_name":"South Fire","county_names":"San Bernardino","peak_acres":900.0,"latest_percent_contained":10.0,"first_seen_date":"2021-08-25","days_in_feed":8,"peak_daily_growth_acres":400.0,"peak_growth_date":"2021-08-26","days_from_start_to_50_percent_contained":null,"share_of_days_carried_forward":0.5,"peak_structures_destroyed":18}],"fireDaily":[{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-07-15","acres":2250.0,"contained":0.0,"acres_carried":false,"contained_carried":false},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-07-16","acres":7947.0,"contained":7.0,"acres_carried":false,"contained_carried":false},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-07-17","acres":9847.0,"contained":12.0,"acres_carried":false,"contained_carried":false},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-07-18","acres":15074.0,"contained":15.0,"acres_carried":false,"contained_carried":false},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-07-19","acres":30074.0,"contained":15.0,"acres_carried":false,"contained_carried":false},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-07-20","acres":59984.0,"contained":15.0,"acres_carried":false,"contained_carried":false},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-07-21","acres":85479.0,"contained":15.0,"acres_carried":false,"contained_carried":false},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-07-22","acres":103910.0,"contained":17.0,"acres_carried":false,"contained_carried":false},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-07-23","acres":142940.0,"contained":18.0,"acres_carried":false,"contained_carried":false},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-07-24","acres":181289.0,"contained":19.0,"acres_carried":false,"contained_carried":false},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-07-25","acres":190625.0,"contained":21.0,"acres_carried":false,"contained_carried":false},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-07-26","acres":197487.0,"contained":22.0,"acres_carried":false,"contained_carried":false},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-07-27","acres":208206.0,"contained":23.0,"acres_carried":false,"contained_carried":false},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-07-28","acres":217581.0,"contained":23.0,"acres_carried":false,"contained_carried":false},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-07-29","acres":221504.0,"contained":23.0,"acres_carried":false,"contained_carried":false},{"unique_id":"d0174b70-8652-4242-bf7f-b00e98a48319","date":"2021-07-30","acres":null,"contained":null,"acres_carried":false,"contained_carried":false},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-07-30","acres":240595.0,"contained":23.0,"acres_carried":false,"contained_carried":false},{"unique_id":"d0174b70-8652-4242-bf7f-b00e98a48319","date":"2021-07-31","acres":null,"contained":null,"acres_carried":false,"contained_carried":false},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-07-31","acres":240795.0,"contained":24.0,"acres_carried":false,"contained_carried":false},{"unique_id":"d0174b70-8652-4242-bf7f-b00e98a48319","date":"2021-08-01","acres":null,"contained":null,"acres_carried":false,"contained_carried":false},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-08-01","acres":244888.0,"contained":32.0,"acres_carried":false,"contained_carried":false},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-08-02","acres":null,"contained":null,"acres_carried":false,"contained_carried":false},{"unique_id":"d0174b70-8652-4242-bf7f-b00e98a48319","date":"2021-08-02","acres":null,"contained":null,"acres_carried":false,"contained_carried":false},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-08-02","acres":248820.0,"contained":35.0,"acres_carried":false,"contained_carried":false},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-08-03","acres":null,"contained":null,"acres_carried":false,"contained_carried":false},{"unique_id":"d0174b70-8652-4242-bf7f-b00e98a48319","date":"2021-08-03","acres":null,"contained":null,"acres_carried":false,"contained_carried":false},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-08-03","acres":253052.0,"contained":35.0,"acres_carried":false,"contained_carried":false},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-08-04","acres":null,"contained":null,"acres_carried":false,"contained_carried":false},{"unique_id":"d0174b70-8652-4242-bf7f-b00e98a48319","date":"2021-08-04","acres":null,"contained":null,"acres_carried":false,"contained_carried":false},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-08-04","acres":274139.0,"contained":35.0,"acres_carried":false,"contained_carried":false},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-08-05","acres":null,"contained":null,"acres_carried":false,"contained_carried":false},{"unique_id":"d0174b70-8652-4242-bf7f-b00e98a48319","date":"2021-08-05","acres":null,"contained":null,"acres_carried":false,"contained_carried":false},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-08-05","acres":322502.0,"contained":35.0,"acres_carried":false,"contained_carried":false},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-08-06","acres":null,"contained":null,"acres_carried":false,"contained_carried":false},{"unique_id":"d0174b70-8652-4242-bf7f-b00e98a48319","date":"2021-08-06","acres":null,"contained":null,"acres_carried":false,"contained_carried":false},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-08-06","acres":432813.0,"contained":35.0,"acres_carried":false,"contained_carried":false},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-08-07","acres":null,"contained":null,"acres_carried":false,"contained_carried":false},{"unique_id":"d0174b70-8652-4242-bf7f-b00e98a48319","date":"2021-08-07","acres":null,"contained":null,"acres_carried":false,"contained_carried":false},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-08-07","acres":446723.0,"contained":21.0,"acres_carried":false,"contained_carried":false},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-08-08","acres":null,"contained":null,"acres_carried":false,"contained_carried":false},{"unique_id":"d0174b70-8652-4242-bf7f-b00e98a48319","date":"2021-08-08","acres":null,"contained":null,"acres_carried":false,"contained_carried":false},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-08-08","acres":463477.0,"contained":21.0,"acres_carried":false,"contained_carried":false},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-08-09","acres":null,"contained":null,"acres_carried":false,"contained_carried":false},{"unique_id":"d0174b70-8652-4242-bf7f-b00e98a48319","date":"2021-08-09","acres":null,"contained":null,"acres_carried":false,"contained_carried":false},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-08-09","acres":489287.0,"contained":21.0,"acres_carried":false,"contained_carried":false},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-08-10","acres":null,"contained":null,"acres_carried":false,"contained_carried":false},{"unique_id":"d0174b70-8652-4242-bf7f-b00e98a48319","date":"2021-08-10","acres":null,"contained":null,"acres_carried":false,"contained_carried":false},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-08-10","acres":487764.0,"contained":25.0,"acres_carried":false,"contained_carried":false},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-08-11","acres":null,"contained":null,"acres_carried":false,"contained_carried":false},{"unique_id":"d0174b70-8652-4242-bf7f-b00e98a48319","date":"2021-08-11","acres":null,"contained":null,"acres_carried":false,"contained_carried":false},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-08-11","acres":501008.0,"contained":30.0,"acres_carried":false,"contained_carried":false},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-08-12","acres":null,"contained":null,"acres_carried":false,"contained_carried":false},{"unique_id":"d0174b70-8652-4242-bf7f-b00e98a48319","date":"2021-08-12","acres":null,"contained":null,"acres_carried":false,"contained_carried":false},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-08-12","acres":510227.0,"contained":30.0,"acres_carried":false,"contained_carried":false},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-08-13","acres":null,"contained":null,"acres_carried":false,"contained_carried":false},{"unique_id":"d0174b70-8652-4242-bf7f-b00e98a48319","date":"2021-08-13","acres":null,"contained":null,"acres_carried":false,"contained_carried":false},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-08-13","acres":517945.0,"contained":31.0,"acres_carried":false,"contained_carried":false},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-08-14","acres":null,"contained":null,"acres_carried":false,"contained_carried":false},{"unique_id":"d0174b70-8652-4242-bf7f-b00e98a48319","date":"2021-08-14","acres":null,"contained":null,"acres_carried":false,"contained_carried":false},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-08-14","acres":540581.0,"contained":31.0,"acres_carried":false,"contained_carried":false},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-08-15","acres":null,"contained":null,"acres_carried":false,"contained_carried":false},{"unique_id":"d0174b70-8652-4242-bf7f-b00e98a48319","date":"2021-08-15","acres":null,"contained":null,"acres_carried":false,"contained_carried":false},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-08-15","acres":554816.0,"contained":31.0,"acres_carried":false,"contained_carried":false},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-08-15","acres":null,"contained":null,"acres_carried":false,"contained_carried":false},{"unique_id":"d0174b70-8652-4242-bf7f-b00e98a48319","date":"2021-08-16","acres":null,"contained":null,"acres_carried":false,"contained_carried":false},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-08-16","acres":569707.0,"contained":31.0,"acres_carried":false,"contained_carried":false},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-08-16","acres":754.0,"contained":null,"acres_carried":false,"contained_carried":false},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-08-16","acres":null,"contained":null,"acres_carried":false,"contained_carried":false},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-08-17","acres":6500.0,"contained":0.0,"acres_carried":false,"contained_carried":false},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-08-17","acres":null,"contained":null,"acres_carried":false,"contained_carried":false},{"unique_id":"d0174b70-8652-4242-bf7f-b00e98a48319","date":"2021-08-17","acres":null,"contained":null,"acres_carried":false,"contained_carried":false},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-08-17","acres":604511.0,"contained":31.0,"acres_carried":false,"contained_carried":false},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-08-18","acres":53772.0,"contained":0.0,"acres_carried":false,"contained_carried":false},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-08-18","acres":128613.0,"contained":10.0,"acres_carried":false,"contained_carried":false},{"unique_id":"d0174b70-8652-4242-bf7f-b00e98a48319","date":"2021-08-18","acres":107102.0,"contained":51.0,"acres_carried":false,"contained_carried":false},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-08-18","acres":635728.0,"contained":33.0,"acres_carried":false,"contained_carried":false},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-08-19","acres":65474.0,"contained":0.0,"acres_carried":false,"contained_carried":false},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-08-19","acres":128613.0,"contained":10.0,"acres_carried":false,"contained_carried":false},{"unique_id":"d0174b70-8652-4242-bf7f-b00e98a48319","date":"2021-08-19","acres":111016.0,"contained":51.0,"acres_carried":false,"contained_carried":false},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-08-19","acres":678369.0,"contained":35.0,"acres_carried":false,"contained_carried":false},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-08-20","acres":73415.0,"contained":0.0,"acres_carried":false,"contained_carried":false},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-08-20","acres":142250.0,"contained":10.0,"acres_carried":false,"contained_carried":false},{"unique_id":"d0174b70-8652-4242-bf7f-b00e98a48319","date":"2021-08-20","acres":115996.0,"contained":52.0,"acres_carried":false,"contained_carried":false},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-08-20","acres":700630.0,"contained":35.0,"acres_carried":false,"contained_carried":false},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-08-21","acres":82444.0,"contained":0.0,"acres_carried":false,"contained_carried":false},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-08-21","acres":145357.0,"contained":16.0,"acres_carried":false,"contained_carried":false},{"unique_id":"d0174b70-8652-4242-bf7f-b00e98a48319","date":"2021-08-21","acres":116423.0,"contained":64.0,"acres_carried":false,"contained_carried":false},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-08-21","acres":714219.0,"contained":35.0,"acres_carried":false,"contained_carried":false},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-08-22","acres":98149.0,"contained":0.0,"acres_carried":false,"contained_carried":false},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-08-22","acres":147323.0,"contained":16.0,"acres_carried":false,"contained_carried":false},{"unique_id":"d0174b70-8652-4242-bf7f-b00e98a48319","date":"2021-08-22","acres":117985.0,"contained":66.0,"acres_carried":false,"contained_carried":false},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-08-22","acres":721298.0,"contained":37.0,"acres_carried":false,"contained_carried":false},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-08-23","acres":106562.0,"contained":5.0,"acres_carried":false,"contained_carried":false},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-08-23","acres":150011.0,"contained":20.0,"acres_carried":false,"contained_carried":false},{"unique_id":"d0174b70-8652-4242-bf7f-b00e98a48319","date":"2021-08-23","acres":118090.0,"contained":68.0,"acres_carried":false,"contained_carried":false},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-08-23","acres":725821.0,"contained":40.0,"acres_carried":false,"contained_carried":false},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-08-24","acres":117704.0,"contained":9.0,"acres_carried":false,"contained_carried":false},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-08-24","acres":152125.0,"contained":20.0,"acres_carried":false,"contained_carried":false},{"unique_id":"d0174b70-8652-4242-bf7f-b00e98a48319","date":"2021-08-24","acres":118624.0,"contained":71.0,"acres_carried":false,"contained_carried":false},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-08-24","acres":731310.0,"contained":41.0,"acres_carried":false,"contained_carried":false},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-08-25","acres":126182.0,"contained":11.0,"acres_carried":false,"contained_carried":false},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-08-25","acres":154344.0,"contained":20.0,"acres_carried":false,"contained_carried":false},{"unique_id":"d0174b70-8652-4242-bf7f-b00e98a48319","date":"2021-08-25","acres":119560.0,"contained":73.0,"acres_carried":false,"contained_carried":false},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-08-25","acres":735064.0,"contained":45.0,"acres_carried":false,"contained_carried":false},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-08-26","acres":136643.0,"contained":12.0,"acres_carried":false,"contained_carried":false},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-08-26","acres":157287.0,"contained":20.0,"acres_carried":false,"contained_carried":false},{"unique_id":"d0174b70-8652-4242-bf7f-b00e98a48319","date":"2021-08-26","acres":119560.0,"contained":73.0,"acres_carried":false,"contained_carried":false},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-08-26","acres":747091.0,"contained":45.0,"acres_carried":false,"contained_carried":false},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-08-27","acres":143951.0,"contained":12.0,"acres_carried":false,"contained_carried":false},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-08-27","acres":160148.0,"contained":22.0,"acres_carried":false,"contained_carried":false},{"unique_id":"d0174b70-8652-4242-bf7f-b00e98a48319","date":"2021-08-27","acres":122653.0,"contained":93.0,"acres_carried":false,"contained_carried":false},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-08-27","acres":750672.0,"contained":46.0,"acres_carried":false,"contained_carried":false},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-08-28","acres":161309.0,"contained":23.0,"acres_carried":false,"contained_carried":false},{"unique_id":"d0174b70-8652-4242-bf7f-b00e98a48319","date":"2021-08-28","acres":122653.0,"contained":93.0,"acres_carried":false,"contained_carried":false},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-08-28","acres":756768.0,"contained":48.0,"acres_carried":false,"contained_carried":false},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-08-28","acres":149684.0,"contained":19.0,"acres_carried":false,"contained_carried":false},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-08-29","acres":156515.0,"contained":19.0,"acres_carried":false,"contained_carried":false},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-08-29","acres":163155.0,"contained":23.0,"acres_carried":false,"contained_carried":false},{"unique_id":"d0174b70-8652-4242-bf7f-b00e98a48319","date":"2021-08-29","acres":122653.0,"contained":93.0,"acres_carried":true,"contained_carried":true},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-08-29","acres":764135.0,"contained":48.0,"acres_carried":false,"contained_carried":false},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-08-30","acres":164746.0,"contained":29.0,"acres_carried":false,"contained_carried":false},{"unique_id":"d0174b70-8652-4242-bf7f-b00e98a48319","date":"2021-08-30","acres":122653.0,"contained":93.0,"acres_carried":true,"contained_carried":true},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-08-30","acres":771183.0,"contained":48.0,"acres_carried":false,"contained_carried":false},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-08-30","acres":177260.0,"contained":14.0,"acres_carried":false,"contained_carried":false},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-08-31","acres":191607.0,"contained":16.0,"acres_carried":false,"contained_carried":false},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-08-31","acres":170945.0,"contained":29.0,"acres_carried":false,"contained_carried":false},{"unique_id":"d0174b70-8652-4242-bf7f-b00e98a48319","date":"2021-08-31","acres":122653.0,"contained":93.0,"acres_carried":true,"contained_carried":true},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-08-31","acres":807396.0,"contained":48.0,"acres_carried":false,"contained_carried":false},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-09-01","acres":204390.0,"contained":20.0,"acres_carried":false,"contained_carried":false},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-09-01","acres":174706.0,"contained":29.0,"acres_carried":false,"contained_carried":false},{"unique_id":"d0174b70-8652-4242-bf7f-b00e98a48319","date":"2021-09-01","acres":122653.0,"contained":93.0,"acres_carried":true,"contained_carried":true},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-09-01","acres":844081.0,"contained":52.0,"acres_carried":false,"contained_carried":false},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-09-02","acres":176579.0,"contained":29.0,"acres_carried":false,"contained_carried":false},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-09-02","acres":210259.0,"contained":25.0,"acres_carried":false,"contained_carried":false},{"unique_id":"d0174b70-8652-4242-bf7f-b00e98a48319","date":"2021-09-02","acres":122653.0,"contained":93.0,"acres_carried":true,"contained_carried":true},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-09-02","acres":859457.0,"contained":55.0,"acres_carried":false,"contained_carried":false},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-09-03","acres":212907.0,"contained":29.0,"acres_carried":false,"contained_carried":false},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-09-03","acres":177222.0,"contained":33.0,"acres_carried":false,"contained_carried":false},{"unique_id":"d0174b70-8652-4242-bf7f-b00e98a48319","date":"2021-09-03","acres":122653.0,"contained":93.0,"acres_carried":true,"contained_carried":true},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-09-03","acres":868781.0,"contained":55.0,"acres_carried":false,"contained_carried":false},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-09-04","acres":214107.0,"contained":37.0,"acres_carried":false,"contained_carried":false},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-09-04","acres":178793.0,"contained":35.0,"acres_carried":false,"contained_carried":false},{"unique_id":"d0174b70-8652-4242-bf7f-b00e98a48319","date":"2021-09-04","acres":122653.0,"contained":93.0,"acres_carried":true,"contained_carried":true},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-09-04","acres":885954.0,"contained":55.0,"acres_carried":false,"contained_carried":false},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-09-05","acres":215400.0,"contained":43.0,"acres_carried":false,"contained_carried":false},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-09-05","acres":179276.0,"contained":35.0,"acres_carried":false,"contained_carried":false},{"unique_id":"d0174b70-8652-4242-bf7f-b00e98a48319","date":"2021-09-05","acres":122653.0,"contained":93.0,"acres_carried":true,"contained_carried":true},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-09-05","acres":893852.0,"contained":56.0,"acres_carried":false,"contained_carried":false},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-09-06","acres":216358.0,"contained":44.0,"acres_carried":false,"contained_carried":false},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-09-06","acres":181617.0,"contained":37.0,"acres_carried":false,"contained_carried":false},{"unique_id":"d0174b70-8652-4242-bf7f-b00e98a48319","date":"2021-09-06","acres":122653.0,"contained":93.0,"acres_carried":true,"contained_carried":true},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-09-06","acres":910495.0,"contained":57.0,"acres_carried":false,"contained_carried":false},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-09-07","acres":216646.0,"contained":49.0,"acres_carried":false,"contained_carried":false},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-09-07","acres":181617.0,"contained":37.0,"acres_carried":true,"contained_carried":true},{"unique_id":"d0174b70-8652-4242-bf7f-b00e98a48319","date":"2021-09-07","acres":122653.0,"contained":93.0,"acres_carried":true,"contained_carried":true},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-09-07","acres":917579.0,"contained":59.0,"acres_carried":false,"contained_carried":false},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-09-08","acres":217569.0,"contained":50.0,"acres_carried":false,"contained_carried":false},{"unique_id":"d0174b70-8652-4242-bf7f-b00e98a48319","date":"2021-09-08","acres":122653.0,"contained":93.0,"acres_carried":true,"contained_carried":true},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-09-08","acres":922192.0,"contained":59.0,"acres_carried":false,"contained_carried":false},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-09-08","acres":181617.0,"contained":37.0,"acres_carried":true,"contained_carried":true},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-09-09","acres":217946.0,"contained":53.0,"acres_carried":false,"contained_carried":false},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-09-09","acres":181617.0,"contained":37.0,"acres_carried":true,"contained_carried":true},{"unique_id":"d0174b70-8652-4242-bf7f-b00e98a48319","date":"2021-09-09","acres":122653.0,"contained":93.0,"acres_carried":true,"contained_carried":true},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-09-09","acres":927320.0,"contained":59.0,"acres_carried":false,"contained_carried":false},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-09-10","acres":218459.0,"contained":53.0,"acres_carried":false,"contained_carried":false},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-09-10","acres":181617.0,"contained":37.0,"acres_carried":true,"contained_carried":true},{"unique_id":"d0174b70-8652-4242-bf7f-b00e98a48319","date":"2021-09-10","acres":122653.0,"contained":93.0,"acres_carried":true,"contained_carried":true},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-09-10","acres":950591.0,"contained":59.0,"acres_carried":false,"contained_carried":false},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-09-11","acres":218489.0,"contained":60.0,"acres_carried":false,"contained_carried":false},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-09-11","acres":181617.0,"contained":37.0,"acres_carried":true,"contained_carried":true},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-09-11","acres":959253.0,"contained":62.0,"acres_carried":false,"contained_carried":false},{"unique_id":"d0174b70-8652-4242-bf7f-b00e98a48319","date":"2021-09-11","acres":122653.0,"contained":93.0,"acres_carried":true,"contained_carried":true},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-09-12","acres":181617.0,"contained":37.0,"acres_carried":true,"contained_carried":true},{"unique_id":"d0174b70-8652-4242-bf7f-b00e98a48319","date":"2021-09-12","acres":122653.0,"contained":93.0,"acres_carried":true,"contained_carried":true},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-09-12","acres":960213.0,"contained":65.0,"acres_carried":false,"contained_carried":false},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-09-12","acres":218950.0,"contained":65.0,"acres_carried":false,"contained_carried":false},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-09-13","acres":181617.0,"contained":37.0,"acres_carried":true,"contained_carried":true},{"unique_id":"d0174b70-8652-4242-bf7f-b00e98a48319","date":"2021-09-13","acres":122653.0,"contained":93.0,"acres_carried":true,"contained_carried":true},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-09-13","acres":960335.0,"contained":75.0,"acres_carried":false,"contained_carried":false},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-09-13","acres":219267.0,"contained":67.0,"acres_carried":false,"contained_carried":false},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-09-14","acres":181617.0,"contained":37.0,"acres_carried":true,"contained_carried":true},{"unique_id":"d0174b70-8652-4242-bf7f-b00e98a48319","date":"2021-09-14","acres":122653.0,"contained":93.0,"acres_carried":true,"contained_carried":true},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-09-14","acres":219267.0,"contained":68.0,"acres_carried":false,"contained_carried":false},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-09-14","acres":960335.0,"contained":75.0,"acres_carried":true,"contained_carried":true},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-09-15","acres":181617.0,"contained":37.0,"acres_carried":true,"contained_carried":true},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-09-15","acres":960470.0,"contained":75.0,"acres_carried":false,"contained_carried":false},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-09-15","acres":219267.0,"contained":70.0,"acres_carried":false,"contained_carried":false},{"unique_id":"d0174b70-8652-4242-bf7f-b00e98a48319","date":"2021-09-15","acres":122653.0,"contained":93.0,"acres_carried":true,"contained_carried":true},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-09-16","acres":181617.0,"contained":37.0,"acres_carried":true,"contained_carried":true},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-09-16","acres":219267.0,"contained":71.0,"acres_carried":false,"contained_carried":false},{"unique_id":"d0174b70-8652-4242-bf7f-b00e98a48319","date":"2021-09-16","acres":122653.0,"contained":93.0,"acres_carried":true,"contained_carried":true},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-09-16","acres":960470.0,"contained":86.0,"acres_carried":false,"contained_carried":false},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-09-17","acres":219267.0,"contained":71.0,"acres_carried":true,"contained_carried":true},{"unique_id":"d0174b70-8652-4242-bf7f-b00e98a48319","date":"2021-09-17","acres":122653.0,"contained":93.0,"acres_carried":true,"contained_carried":true},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-09-17","acres":960581.0,"contained":86.0,"acres_carried":false,"contained_carried":false},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-09-17","acres":181617.0,"contained":37.0,"acres_carried":true,"contained_carried":true},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-09-18","acres":219267.0,"contained":71.0,"acres_carried":true,"contained_carried":true},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-09-18","acres":181617.0,"contained":37.0,"acres_carried":true,"contained_carried":true},{"unique_id":"d0174b70-8652-4242-bf7f-b00e98a48319","date":"2021-09-18","acres":122653.0,"contained":93.0,"acres_carried":true,"contained_carried":true},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-09-18","acres":960641.0,"contained":88.0,"acres_carried":false,"contained_carried":false},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-09-19","acres":219267.0,"contained":71.0,"acres_carried":true,"contained_carried":true},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-09-19","acres":181617.0,"contained":37.0,"acres_carried":true,"contained_carried":true},{"unique_id":"d0174b70-8652-4242-bf7f-b00e98a48319","date":"2021-09-19","acres":122653.0,"contained":93.0,"acres_carried":true,"contained_carried":true},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-09-19","acres":963301.0,"contained":88.0,"acres_carried":false,"contained_carried":false},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-09-20","acres":963195.0,"contained":90.0,"acres_carried":false,"contained_carried":false},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-09-20","acres":219267.0,"contained":71.0,"acres_carried":true,"contained_carried":true},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-09-20","acres":181617.0,"contained":37.0,"acres_carried":true,"contained_carried":true},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-09-21","acres":219267.0,"contained":71.0,"acres_carried":true,"contained_carried":true},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-09-21","acres":181617.0,"contained":37.0,"acres_carried":true,"contained_carried":true},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-09-21","acres":963276.0,"contained":90.0,"acres_carried":false,"contained_carried":false},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-09-22","acres":181617.0,"contained":37.0,"acres_carried":true,"contained_carried":true},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-09-22","acres":219267.0,"contained":71.0,"acres_carried":true,"contained_carried":true},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-09-22","acres":963276.0,"contained":94.0,"acres_carried":false,"contained_carried":false},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-09-23","acres":219267.0,"contained":71.0,"acres_carried":true,"contained_carried":true},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-09-23","acres":181617.0,"contained":37.0,"acres_carried":true,"contained_carried":true},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-09-23","acres":963276.0,"contained":94.0,"acres_carried":false,"contained_carried":false},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-09-24","acres":181617.0,"contained":37.0,"acres_carried":true,"contained_carried":true},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-09-24","acres":219267.0,"contained":71.0,"acres_carried":true,"contained_carried":true},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-09-24","acres":963276.0,"contained":94.0,"acres_carried":false,"contained_carried":false},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-09-25","acres":181617.0,"contained":37.0,"acres_carried":true,"contained_carried":true},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-09-25","acres":963276.0,"contained":94.0,"acres_carried":false,"contained_carried":false},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-09-25","acres":219267.0,"contained":71.0,"acres_carried":true,"contained_carried":true},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-09-26","acres":963276.0,"contained":94.0,"acres_carried":false,"contained_carried":false},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-09-26","acres":219267.0,"contained":71.0,"acres_carried":true,"contained_carried":true},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-09-26","acres":181617.0,"contained":37.0,"acres_carried":true,"contained_carried":true},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-09-27","acres":181617.0,"contained":37.0,"acres_carried":true,"contained_carried":true},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-09-27","acres":963276.0,"contained":94.0,"acres_carried":false,"contained_carried":false},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-09-27","acres":219267.0,"contained":71.0,"acres_carried":true,"contained_carried":true},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-09-28","acres":219267.0,"contained":71.0,"acres_carried":true,"contained_carried":true},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-09-28","acres":181617.0,"contained":37.0,"acres_carried":true,"contained_carried":true},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-09-28","acres":963309.0,"contained":94.0,"acres_carried":false,"contained_carried":false},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-09-29","acres":219267.0,"contained":71.0,"acres_carried":true,"contained_carried":true},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-09-29","acres":963309.0,"contained":94.0,"acres_carried":false,"contained_carried":false},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-09-29","acres":181617.0,"contained":37.0,"acres_carried":true,"contained_carried":true},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-09-30","acres":219267.0,"contained":71.0,"acres_carried":true,"contained_carried":true},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-09-30","acres":181617.0,"contained":37.0,"acres_carried":true,"contained_carried":true},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-09-30","acres":963309.0,"contained":94.0,"acres_carried":false,"contained_carried":false},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-10-01","acres":219267.0,"contained":71.0,"acres_carried":true,"contained_carried":true},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-10-01","acres":181617.0,"contained":37.0,"acres_carried":true,"contained_carried":true},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-10-01","acres":963309.0,"contained":94.0,"acres_carried":false,"contained_carried":false},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-10-02","acres":219267.0,"contained":71.0,"acres_carried":true,"contained_carried":true},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-10-02","acres":181617.0,"contained":37.0,"acres_carried":true,"contained_carried":true},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-10-02","acres":963309.0,"contained":94.0,"acres_carried":true,"contained_carried":true},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-10-03","acres":219267.0,"contained":71.0,"acres_carried":true,"contained_carried":true},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-10-03","acres":181617.0,"contained":37.0,"acres_carried":true,"contained_carried":true},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-10-03","acres":963309.0,"contained":94.0,"acres_carried":true,"contained_carried":true},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-10-07","acres":219267.0,"contained":71.0,"acres_carried":true,"contained_carried":true},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-10-07","acres":181617.0,"contained":37.0,"acres_carried":true,"contained_carried":true},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-10-07","acres":963309.0,"contained":94.0,"acres_carried":true,"contained_carried":true},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-10-08","acres":181617.0,"contained":37.0,"acres_carried":true,"contained_carried":true},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-10-08","acres":963309.0,"contained":94.0,"acres_carried":true,"contained_carried":true},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-10-08","acres":219267.0,"contained":71.0,"acres_carried":true,"contained_carried":true},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-10-09","acres":963309.0,"contained":94.0,"acres_carried":true,"contained_carried":true},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-10-09","acres":219267.0,"contained":71.0,"acres_carried":true,"contained_carried":true},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-10-09","acres":181617.0,"contained":37.0,"acres_carried":true,"contained_carried":true},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-10-10","acres":219267.0,"contained":71.0,"acres_carried":true,"contained_carried":true},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-10-10","acres":181617.0,"contained":37.0,"acres_carried":true,"contained_carried":true},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-10-10","acres":963309.0,"contained":94.0,"acres_carried":true,"contained_carried":true},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-10-11","acres":181617.0,"contained":37.0,"acres_carried":true,"contained_carried":true},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-10-11","acres":963309.0,"contained":94.0,"acres_carried":true,"contained_carried":true},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-10-11","acres":219267.0,"contained":71.0,"acres_carried":true,"contained_carried":true},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-10-12","acres":219267.0,"contained":71.0,"acres_carried":true,"contained_carried":true},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-10-12","acres":963309.0,"contained":94.0,"acres_carried":true,"contained_carried":true},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-10-12","acres":181617.0,"contained":37.0,"acres_carried":true,"contained_carried":true},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-10-13","acres":181617.0,"contained":37.0,"acres_carried":true,"contained_carried":true},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-10-13","acres":219267.0,"contained":71.0,"acres_carried":true,"contained_carried":true},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-10-13","acres":963309.0,"contained":94.0,"acres_carried":true,"contained_carried":true},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-10-14","acres":219267.0,"contained":71.0,"acres_carried":true,"contained_carried":true},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-10-14","acres":963309.0,"contained":94.0,"acres_carried":true,"contained_carried":true},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-10-14","acres":181617.0,"contained":37.0,"acres_carried":true,"contained_carried":true},{"unique_id":"a21c4d1f-87ed-4db1-85ea-eae41c90a0ac","date":"2021-10-15","acres":219267.0,"contained":71.0,"acres_carried":true,"contained_carried":true},{"unique_id":"1d1bb813-5955-438a-a2cd-0e2d46074f1a","date":"2021-10-15","acres":181617.0,"contained":37.0,"acres_carried":true,"contained_carried":true},{"unique_id":"00016d5d-1647-49e4-a02a-abf46b8480ae","date":"2021-10-15","acres":963309.0,"contained":94.0,"acres_carried":true,"contained_carried":true}],"statewide":[{"date":"2021-07-15","has_feed_snapshot":true,"incidents_in_feed":13,"tracked_acres_to_date":11853.0,"fires_with_known_acreage":4,"acres_added":null},{"date":"2021-07-16","has_feed_snapshot":true,"incidents_in_feed":12,"tracked_acres_to_date":17550.0,"fires_with_known_acreage":4,"acres_added":5697.0},{"date":"2021-07-17","has_feed_snapshot":true,"incidents_in_feed":12,"tracked_acres_to_date":19606.0,"fires_with_known_acreage":4,"acres_added":2056.0},{"date":"2021-07-18","has_feed_snapshot":true,"incidents_in_feed":14,"tracked_acres_to_date":24876.0,"fires_with_known_acreage":5,"acres_added":5270.0},{"date":"2021-07-19","has_feed_snapshot":true,"incidents_in_feed":13,"tracked_acres_to_date":39876.0,"fires_with_known_acreage":5,"acres_added":15000.0},{"date":"2021-07-20","has_feed_snapshot":true,"incidents_in_feed":12,"tracked_acres_to_date":69836.0,"fires_with_known_acreage":6,"acres_added":29960.0},{"date":"2021-07-21","has_feed_snapshot":true,"incidents_in_feed":12,"tracked_acres_to_date":95421.0,"fires_with_known_acreage":7,"acres_added":25585.0},{"date":"2021-07-22","has_feed_snapshot":true,"incidents_in_feed":8,"tracked_acres_to_date":113852.0,"fires_with_known_acreage":7,"acres_added":18431.0},{"date":"2021-07-23","has_feed_snapshot":true,"incidents_in_feed":9,"tracked_acres_to_date":152882.0,"fires_with_known_acreage":7,"acres_added":39030.0},{"date":"2021-07-24","has_feed_snapshot":true,"incidents_in_feed":10,"tracked_acres_to_date":191256.0,"fires_with_known_acreage":8,"acres_added":38374.0},{"date":"2021-07-25","has_feed_snapshot":true,"incidents_in_feed":9,"tracked_acres_to_date":200592.0,"fires_with_known_acreage":8,"acres_added":9336.0},{"date":"2021-07-26","has_feed_snapshot":true,"incidents_in_feed":9,"tracked_acres_to_date":207504.0,"fires_with_known_acreage":9,"acres_added":6912.0},{"date":"2021-07-27","has_feed_snapshot":true,"incidents_in_feed":9,"tracked_acres_to_date":218423.0,"fires_with_known_acreage":9,"acres_added":10919.0},{"date":"2021-07-28","has_feed_snapshot":true,"incidents_in_feed":9,"tracked_acres_to_date":227700.0,"fires_with_known_acreage":9,"acres_added":9277.0},{"date":"2021-07-29","has_feed_snapshot":true,"incidents_in_feed":10,"tracked_acres_to_date":231807.0,"fires_with_known_acreage":10,"acres_added":4107.0},{"date":"2021-07-30","has_feed_snapshot":true,"incidents_in_feed":10,"tracked_acres_to_date":250885.0,"fires_with_known_acreage":10,"acres_added":19078.0},{"date":"2021-07-31","has_feed_snapshot":true,"incidents_in_feed":12,"tracked_acres_to_date":251238.0,"fires_with_known_acreage":11,"acres_added":353.0},{"date":"2021-08-01","has_feed_snapshot":true,"incidents_in_feed":12,"tracked_acres_to_date":255671.0,"fires_with_known_acreage":12,"acres_added":4433.0},{"date":"2021-08-02","has_feed_snapshot":true,"incidents_in_feed":16,"tracked_acres_to_date":259653.0,"fires_with_known_acreage":13,"acres_added":3982.0},{"date":"2021-08-03","has_feed_snapshot":true,"incidents_in_feed":17,"tracked_acres_to_date":263885.0,"fires_with_known_acreage":13,"acres_added":4232.0},{"date":"2021-08-04","has_feed_snapshot":true,"incidents_in_feed":19,"tracked_acres_to_date":285092.0,"fires_with_known_acreage":15,"acres_added":21207.0},{"date":"2021-08-05","has_feed_snapshot":true,"incidents_in_feed":16,"tracked_acres_to_date":335770.0,"fires_with_known_acreage":15,"acres_added":50678.0},{"date":"2021-08-06","has_feed_snapshot":true,"incidents_in_feed":16,"tracked_acres_to_date":446286.0,"fires_with_known_acreage":15,"acres_added":110516.0},{"date":"2021-08-07","has_feed_snapshot":true,"incidents_in_feed":17,"tracked_acres_to_date":460216.0,"fires_with_known_acreage":15,"acres_added":13930.0},{"date":"2021-08-08","has_feed_snapshot":true,"incidents_in_feed":18,"tracked_acres_to_date":476990.0,"fires_with_known_acreage":16,"acres_added":16774.0},{"date":"2021-08-09","has_feed_snapshot":true,"incidents_in_feed":19,"tracked_acres_to_date":502819.0,"fires_with_known_acreage":16,"acres_added":25829.0},{"date":"2021-08-10","has_feed_snapshot":true,"incidents_in_feed":19,"tracked_acres_to_date":501296.0,"fires_with_known_acreage":16,"acres_added":-1523.0},{"date":"2021-08-11","has_feed_snapshot":true,"incidents_in_feed":19,"tracked_acres_to_date":514615.0,"fires_with_known_acreage":17,"acres_added":13319.0},{"date":"2021-08-12","has_feed_snapshot":true,"incidents_in_feed":19,"tracked_acres_to_date":523968.0,"fires_with_known_acreage":17,"acres_added":9353.0},{"date":"2021-08-13","has_feed_snapshot":true,"incidents_in_feed":19,"tracked_acres_to_date":531681.0,"fires_with_known_acreage":18,"acres_added":7713.0},{"date":"2021-08-14","has_feed_snapshot":true,"incidents_in_feed":19,"tracked_acres_to_date":554432.0,"fires_with_known_acreage":20,"acres_added":22751.0},{"date":"2021-08-15","has_feed_snapshot":true,"incidents_in_feed":20,"tracked_acres_to_date":568729.0,"fires_with_known_acreage":20,"acres_added":14297.0},{"date":"2021-08-16","has_feed_snapshot":true,"incidents_in_feed":20,"tracked_acres_to_date":584374.0,"fires_with_known_acreage":21,"acres_added":15645.0},{"date":"2021-08-17","has_feed_snapshot":true,"incidents_in_feed":15,"tracked_acres_to_date":624924.0,"fires_with_known_acreage":21,"acres_added":40550.0},{"date":"2021-08-18","has_feed_snapshot":true,"incidents_in_feed":14,"tracked_acres_to_date":939128.0,"fires_with_known_acreage":23,"acres_added":314204.0},{"date":"2021-08-19","has_feed_snapshot":true,"incidents_in_feed":15,"tracked_acres_to_date":1000688.0,"fires_with_known_acreage":25,"acres_added":61560.0},{"date":"2021-08-20","has_feed_snapshot":true,"incidents_in_feed":14,"tracked_acres_to_date":1049502.0,"fires_with_known_acreage":25,"acres_added":48814.0},{"date":"2021-08-21","has_feed_snapshot":true,"incidents_in_feed":13,"tracked_acres_to_date":1082492.0,"fires_with_known_acreage":25,"acres_added":32990.0},{"date":"2021-08-22","has_feed_snapshot":true,"incidents_in_feed":13,"tracked_acres_to_date":1112084.0,"fires_with_known_acreage":25,"acres_added":29592.0},{"date":"2021-08-23","has_feed_snapshot":true,"incidents_in_feed":13,"tracked_acres_to_date":1128288.0,"fires_with_known_acreage":25,"acres_added":16204.0},{"date":"2021-08-24","has_feed_snapshot":true,"incidents_in_feed":13,"tracked_acres_to_date":1149753.0,"fires_with_known_acreage":25,"acres_added":21465.0},{"date":"2021-08-25","has_feed_snapshot":true,"incidents_in_feed":19,"tracked_acres_to_date":1170901.0,"fires_with_known_acreage":31,"acres_added":21148.0},{"date":"2021-08-26","has_feed_snapshot":true,"incidents_in_feed":19,"tracked_acres_to_date":1198618.0,"fires_with_known_acreage":32,"acres_added":27717.0},{"date":"2021-08-27","has_feed_snapshot":true,"incidents_in_feed":19,"tracked_acres_to_date":1216538.0,"fires_with_known_acreage":32,"acres_added":17920.0},{"date":"2021-08-28","has_feed_snapshot":true,"incidents_in_feed":19,"tracked_acres_to_date":1230564.0,"fires_with_known_acreage":33,"acres_added":14026.0},{"date":"2021-08-29","has_feed_snapshot":true,"incidents_in_feed":19,"tracked_acres_to_date":1248773.0,"fires_with_known_acreage":33,"acres_added":18209.0},{"date":"2021-08-30","has_feed_snapshot":true,"incidents_in_feed":21,"tracked_acres_to_date":1278608.0,"fires_with_known_acreage":33,"acres_added":29835.0},{"date":"2021-08-31","has_feed_snapshot":true,"incidents_in_feed":20,"tracked_acres_to_date":1335746.0,"fires_with_known_acreage":33,"acres_added":57138.0},{"date":"2021-09-01","has_feed_snapshot":true,"incidents_in_feed":21,"tracked_acres_to_date":1389143.0,"fires_with_known_acreage":34,"acres_added":53397.0},{"date":"2021-09-02","has_feed_snapshot":true,"incidents_in_feed":19,"tracked_acres_to_date":1412365.0,"fires_with_known_acreage":34,"acres_added":23222.0},{"date":"2021-09-03","has_feed_snapshot":true,"incidents_in_feed":17,"tracked_acres_to_date":1424980.0,"fires_with_known_acreage":34,"acres_added":12615.0},{"date":"2021-09-04","has_feed_snapshot":true,"incidents_in_feed":15,"tracked_acres_to_date":1444948.0,"fires_with_known_acreage":34,"acres_added":19968.0},{"date":"2021-09-05","has_feed_snapshot":true,"incidents_in_feed":18,"tracked_acres_to_date":1455370.0,"fires_with_known_acreage":37,"acres_added":10422.0},{"date":"2021-09-06","has_feed_snapshot":true,"incidents_in_feed":19,"tracked_acres_to_date":1475932.0,"fires_with_known_acreage":38,"acres_added":20562.0},{"date":"2021-09-07","has_feed_snapshot":true,"incidents_in_feed":19,"tracked_acres_to_date":1483324.0,"fires_with_known_acreage":38,"acres_added":7392.0},{"date":"2021-09-08","has_feed_snapshot":true,"incidents_in_feed":16,"tracked_acres_to_date":1488860.0,"fires_with_known_acreage":38,"acres_added":5536.0},{"date":"2021-09-09","has_feed_snapshot":true,"incidents_in_feed":15,"tracked_acres_to_date":1494365.0,"fires_with_known_acreage":38,"acres_added":5505.0},{"date":"2021-09-10","has_feed_snapshot":true,"incidents_in_feed":15,"tracked_acres_to_date":1518149.0,"fires_with_known_acreage":38,"acres_added":23784.0},{"date":"2021-09-11","has_feed_snapshot":true,"incidents_in_feed":15,"tracked_acres_to_date":1526841.0,"fires_with_known_acreage":38,"acres_added":8692.0},{"date":"2021-09-12","has_feed_snapshot":true,"incidents_in_feed":17,"tracked_acres_to_date":1528562.0,"fires_with_known_acreage":39,"acres_added":1721.0},{"date":"2021-09-13","has_feed_snapshot":true,"incidents_in_feed":18,"tracked_acres_to_date":1528958.0,"fires_with_known_acreage":39,"acres_added":396.0},{"date":"2021-09-14","has_feed_snapshot":true,"incidents_in_feed":16,"tracked_acres_to_date":1528958.0,"fires_with_known_acreage":39,"acres_added":0.0},{"date":"2021-09-15","has_feed_snapshot":true,"incidents_in_feed":15,"tracked_acres_to_date":1529093.0,"fires_with_known_acreage":39,"acres_added":135.0},{"date":"2021-09-16","has_feed_snapshot":true,"incidents_in_feed":15,"tracked_acres_to_date":1529093.0,"fires_with_known_acreage":39,"acres_added":0.0},{"date":"2021-09-17","has_feed_snapshot":true,"incidents_in_feed":16,"tracked_acres_to_date":1529304.0,"fires_with_known_acreage":40,"acres_added":211.0},{"date":"2021-09-18","has_feed_snapshot":true,"incidents_in_feed":16,"tracked_acres_to_date":1529364.0,"fires_with_known_acreage":40,"acres_added":60.0},{"date":"2021-09-19","has_feed_snapshot":true,"incidents_in_feed":17,"tracked_acres_to_date":1532066.0,"fires_with_known_acreage":41,"acres_added":2702.0},{"date":"2021-09-20","has_feed_snapshot":true,"incidents_in_feed":13,"tracked_acres_to_date":1531960.0,"fires_with_known_acreage":41,"acres_added":-106.0},{"date":"2021-09-21","has_feed_snapshot":true,"incidents_in_feed":12,"tracked_acres_to_date":1532041.0,"fires_with_known_acreage":41,"acres_added":81.0},{"date":"2021-09-22","has_feed_snapshot":true,"incidents_in_feed":14,"tracked_acres_to_date":1532081.0,"fires_with_known_acreage":42,"acres_added":40.0},{"date":"2021-09-23","has_feed_snapshot":true,"incidents_in_feed":14,"tracked_acres_to_date":1533281.0,"fires_with_known_acreage":43,"acres_added":1200.0},{"date":"2021-09-24","has_feed_snapshot":true,"incidents_in_feed":13,"tracked_acres_to_date":1537931.0,"fires_with_known_acreage":43,"acres_added":4650.0},{"date":"2021-09-25","has_feed_snapshot":true,"incidents_in_feed":13,"tracked_acres_to_date":1539625.0,"fires_with_known_acreage":43,"acres_added":1694.0},{"date":"2021-09-26","has_feed_snapshot":true,"incidents_in_feed":12,"tracked_acres_to_date":1540618.0,"fires_with_known_acreage":43,"acres_added":993.0},{"date":"2021-09-27","has_feed_snapshot":true,"incidents_in_feed":12,"tracked_acres_to_date":1540640.0,"fires_with_known_acreage":43,"acres_added":22.0},{"date":"2021-09-28","has_feed_snapshot":true,"incidents_in_feed":12,"tracked_acres_to_date":1540691.0,"fires_with_known_acreage":43,"acres_added":51.0},{"date":"2021-09-29","has_feed_snapshot":true,"incidents_in_feed":12,"tracked_acres_to_date":1540709.0,"fires_with_known_acreage":43,"acres_added":18.0},{"date":"2021-09-30","has_feed_snapshot":true,"incidents_in_feed":12,"tracked_acres_to_date":1540692.0,"fires_with_known_acreage":43,"acres_added":-17.0},{"date":"2021-10-01","has_feed_snapshot":true,"incidents_in_feed":12,"tracked_acres_to_date":1540692.0,"fires_with_known_acreage":43,"acres_added":0.0},{"date":"2021-10-02","has_feed_snapshot":true,"incidents_in_feed":12,"tracked_acres_to_date":1540692.0,"fires_with_known_acreage":43,"acres_added":0.0},{"date":"2021-10-03","has_feed_snapshot":true,"incidents_in_feed":11,"tracked_acres_to_date":1540692.0,"fires_with_known_acreage":43,"acres_added":0.0},{"date":"2021-10-04","has_feed_snapshot":false,"incidents_in_feed":null,"tracked_acres_to_date":1540692.0,"fires_with_known_acreage":43,"acres_added":0.0},{"date":"2021-10-05","has_feed_snapshot":false,"incidents_in_feed":null,"tracked_acres_to_date":1540692.0,"fires_with_known_acreage":43,"acres_added":0.0},{"date":"2021-10-06","has_feed_snapshot":false,"incidents_in_feed":null,"tracked_acres_to_date":1540692.0,"fires_with_known_acreage":43,"acres_added":0.0},{"date":"2021-10-07","has_feed_snapshot":true,"incidents_in_feed":11,"tracked_acres_to_date":1540772.0,"fires_with_known_acreage":44,"acres_added":80.0},{"date":"2021-10-08","has_feed_snapshot":true,"incidents_in_feed":11,"tracked_acres_to_date":1540772.0,"fires_with_known_acreage":44,"acres_added":0.0},{"date":"2021-10-09","has_feed_snapshot":true,"incidents_in_feed":11,"tracked_acres_to_date":1540772.0,"fires_with_known_acreage":44,"acres_added":0.0},{"date":"2021-10-10","has_feed_snapshot":true,"incidents_in_feed":11,"tracked_acres_to_date":1540772.0,"fires_with_known_acreage":44,"acres_added":0.0},{"date":"2021-10-11","has_feed_snapshot":true,"incidents_in_feed":12,"tracked_acres_to_date":1540802.0,"fires_with_known_acreage":45,"acres_added":30.0},{"date":"2021-10-12","has_feed_snapshot":true,"incidents_in_feed":14,"tracked_acres_to_date":1540928.0,"fires_with_known_acreage":46,"acres_added":126.0},{"date":"2021-10-13","has_feed_snapshot":true,"incidents_in_feed":12,"tracked_acres_to_date":1540928.0,"fires_with_known_acreage":46,"acres_added":0.0},{"date":"2021-10-14","has_feed_snapshot":true,"incidents_in_feed":11,"tracked_acres_to_date":1540928.0,"fires_with_known_acreage":46,"acres_added":0.0},{"date":"2021-10-15","has_feed_snapshot":true,"incidents_in_feed":11,"tracked_acres_to_date":1540928.0,"fires_with_known_acreage":46,"acres_added":0.0}],"quality":{"fact_rows":1311,"incidents":78,"snapshot_days":90,"null_acres":979,"carried_acres":210,"unknown_acres":769,"missing_days":3,"incidents_with_acres":46,"dim_versions":121}}</script>
+<script>
+"use strict";
+const DATA = JSON.parse(document.getElementById("data").textContent);
+const SERIES = ["--s1", "--s2", "--s3", "--s4"];
+const top4 = DATA.topFires.slice(0, 4);
+const fmt = n => n == null ? "n/a" : Math.round(n).toLocaleString("en-US");
+const compact = n => {
+  const a = Math.abs(n);
+  if (a >= 1e6) return (n / 1e6).toFixed(a % 1e6 === 0 ? 0 : 1) + "M";
+  if (a >= 1e4) return Math.round(n / 1e3) + "K";
+  return fmt(n);
+};
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const dayNumber = iso => Date.parse(iso + "T00:00:00Z") / 864e5;
+const niceDate = iso => `${MONTHS[+iso.slice(5, 7) - 1]} ${+iso.slice(8)}`;
+const SVG = "http://www.w3.org/2000/svg";
+
+function el(tag, attrs = {}, parent, text) {
+  const node = tag.startsWith("svg:")
+    ? document.createElementNS(SVG, tag.slice(4)) : document.createElement(tag);
+  for (const [key, value] of Object.entries(attrs)) if (value != null) node.setAttribute(key, value);
+  if (text != null) node.textContent = text;
+  if (parent) parent.appendChild(node);
+  return node;
+}
+function niceMax(value) {
+  const power = 10 ** Math.floor(Math.log10(value || 1));
+  for (const step of [1, 1.5, 2, 2.5, 3, 4, 5, 7.5, 10]) if (step * power >= value) return step * power;
+  return value;
+}
+
+const tooltip = document.getElementById("tooltip");
+function showTip(event, when, items) {
+  tooltip.replaceChildren();
+  el("div", { class: "when" }, tooltip, when);
+  for (const item of items) {
+    const row = el("div", { class: "row" }, tooltip);
+    if (item.color) el("span", { class: "key", style: `background:var(${item.color})` }, row);
+    el("strong", {}, row, item.value);
+    el("small", {}, row, item.label);
+  }
+  tooltip.style.display = "block";
+  const box = tooltip.getBoundingClientRect();
+  const x = Math.min(event.clientX + 14, innerWidth - box.width - 8);
+  const y = Math.min(event.clientY + 14, innerHeight - box.height - 8);
+  tooltip.style.left = Math.max(8, x) + "px";
+  tooltip.style.top = Math.max(8, y) + "px";
+}
+const hideTip = () => { tooltip.style.display = "none"; };
+
+const allDates = DATA.statewide.map(d => d.date);
+const start = dayNumber(allDates[0]), end = dayNumber(allDates.at(-1));
+const monthTicks = ["2021-08-01", "2021-09-01", "2021-10-01"];
+const outage = DATA.statewide.filter(d => !d.has_feed_snapshot).map(d => d.date);
+
+function frame(container, opts) {
+  const width = Math.max(container.clientWidth, 200);
+  const { height, left = 44, right = 12, top = 10, bottom = 24, yMax, yMin = 0, yTicks, yFormat = compact, ariaLabel } = opts;
+  const svg = el("svg:svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": ariaLabel }, container);
+  const x = day => left + (dayNumber(day) - start) / (end - start) * (width - left - right);
+  const y = v => top + (1 - (v - yMin) / (yMax - yMin)) * (height - top - bottom);
+  for (const date of outage.length ? [outage] : []) {
+    el("svg:rect", {
+      x: x(date[0]) - 1, y: top, width: Math.max(x(date.at(-1)) - x(date[0]) + 2, 4),
+      height: height - top - bottom, fill: "var(--grid)", opacity: .7,
+    }, svg);
+  }
+  for (const tick of yTicks) {
+    el("svg:line", { x1: left, x2: width - right, y1: y(tick), y2: y(tick),
+      stroke: tick === 0 ? "var(--axis)" : "var(--grid)", "stroke-width": 1 }, svg);
+    el("svg:text", { x: left - 6, y: y(tick) + 4, "text-anchor": "end" }, svg, yFormat(tick));
+  }
+  for (const tick of monthTicks) {
+    if (dayNumber(tick) < start || dayNumber(tick) > end) continue;
+    el("svg:text", { x: x(tick), y: height - 6, "text-anchor": "middle" }, svg, niceDate(tick).split(" ")[0] + " 1");
+  }
+  return { svg, x, y, width, left, right, top, bottom, height };
+}
+
+function linePath(points, x, y, key) {
+  let path = "", open = false;
+  for (const point of points) {
+    if (point[key] == null) { open = false; continue; }
+    path += `${open ? "L" : "M"}${x(point.date).toFixed(1)} ${y(point[key]).toFixed(1)}`;
+    open = true;
+  }
+  return path;
+}
+
+function crosshair(ctx, container, readout) {
+  const line = el("svg:line", { y1: ctx.top, y2: ctx.height - ctx.bottom, stroke: "var(--axis)", "stroke-width": 1, visibility: "hidden" }, ctx.svg);
+  const dots = el("svg:g", {}, ctx.svg);
+  const zone = el("svg:rect", {
+    x: ctx.left, y: ctx.top, width: ctx.width - ctx.left - ctx.right, height: ctx.height - ctx.top - ctx.bottom,
+    fill: "transparent", tabindex: 0, "aria-label": "Chart values. Use the left and right arrow keys to move by day.",
+  }, ctx.svg);
+  let index = allDates.length - 1;
+  const render = event => {
+    const date = allDates[index];
+    line.setAttribute("x1", ctx.x(date)); line.setAttribute("x2", ctx.x(date));
+    line.setAttribute("visibility", "visible");
+    const { items, marks } = readout(date);
+    dots.replaceChildren();
+    for (const mark of marks) {
+      el("svg:circle", { cx: ctx.x(date), cy: ctx.y(mark.value), r: 4, fill: `var(${mark.color})`, stroke: "var(--surface)", "stroke-width": 2 }, dots);
+    }
+    showTip(event, niceDate(date), items);
+  };
+  zone.addEventListener("pointermove", event => {
+    const rect = ctx.svg.getBoundingClientRect();
+    const px = (event.clientX - rect.left) * ctx.width / rect.width;
+    const day = start + (px - ctx.left) / (ctx.width - ctx.left - ctx.right) * (end - start);
+    index = Math.max(0, Math.min(allDates.length - 1, Math.round(day - start)));
+    render(event);
+  });
+  const clear = () => { hideTip(); line.setAttribute("visibility", "hidden"); dots.replaceChildren(); };
+  zone.addEventListener("pointerleave", clear);
+  zone.addEventListener("blur", clear);
+  zone.addEventListener("keydown", event => {
+    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+    event.preventDefault();
+    index = Math.max(0, Math.min(allDates.length - 1, index + (event.key === "ArrowLeft" ? -1 : 1)));
+    const rect = ctx.svg.getBoundingClientRect();
+    render({ clientX: rect.left + ctx.x(allDates[index]) * rect.width / ctx.width, clientY: rect.top + 20 });
+  });
+}
+
+const dailyByFire = new Map(top4.map(fire => [fire.unique_id, DATA.fireDaily.filter(r => r.unique_id === fire.unique_id)]));
+function asOf(fireId, date) {
+  let last = null;
+  for (const row of dailyByFire.get(fireId)) { if (row.date > date) break; if (row.acres != null) last = row; }
+  return last;
+}
+
+function drawSize() {
+  const container = document.getElementById("size-chart");
+  container.replaceChildren();
+  const legend = document.getElementById("size-legend");
+  legend.replaceChildren();
+  top4.forEach((fire, i) => {
+    const entry = el("span", {}, legend);
+    el("span", { class: "key", style: `background:var(${SERIES[i]})` }, entry);
+    entry.appendChild(document.createTextNode(fire.incident_name));
+  });
+  const yMax = niceMax(Math.max(...top4.map(f => f.peak_acres)));
+  const narrow = container.clientWidth < 560;
+  const ctx = frame(container, {
+    height: narrow ? 260 : 320, right: narrow ? 12 : 104, yMax, yTicks: [0, .25, .5, .75, 1].map(t => t * yMax),
+    ariaLabel: `Acreage over time for ${top4.map(f => f.incident_name).join(", ")}`,
+  });
+  top4.forEach((fire, i) => {
+    const points = dailyByFire.get(fire.unique_id).filter(r => r.acres != null);
+    el("svg:path", { d: linePath(points, ctx.x, ctx.y, "acres"), fill: "none", stroke: `var(${SERIES[i]})`,
+      "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round" }, ctx.svg);
+    const last = points.at(-1);
+    el("svg:circle", { cx: ctx.x(last.date), cy: ctx.y(last.acres), r: 4, fill: `var(${SERIES[i]})`, stroke: "var(--surface)", "stroke-width": 2 }, ctx.svg);
+    if (!narrow) {
+      // Ends of the three smaller fires sit close together, so each gets its own label line.
+      const offsets = { 0: 4, 1: -8, 2: 6, 3: 18 };
+      el("svg:text", { class: "direct", x: ctx.x(last.date) + 8, y: ctx.y(last.acres) + offsets[i] }, ctx.svg, fire.incident_name);
+    }
+  });
+  crosshair(ctx, container, date => {
+    const rows = top4.map((fire, i) => ({ fire, i, row: asOf(fire.unique_id, date) })).filter(r => r.row);
+    return {
+      items: rows.map(({ fire, i, row }) => ({ color: SERIES[i], value: fmt(row.acres), label: fire.incident_name })),
+      marks: rows.map(({ i, row }) => ({ color: SERIES[i], value: row.acres })),
+    };
+  });
+}
+
+function drawAdded() {
+  const container = document.getElementById("added-chart");
+  container.replaceChildren();
+  const rows = DATA.statewide.filter(d => d.acres_added != null);
+  const yMax = niceMax(Math.max(...rows.map(d => d.acres_added)));
+  // Downward revisions are tiny next to the peaks, so they get room but no tick of their own.
+  const yMin = Math.min(0, ...rows.map(d => d.acres_added));
+  const ticks = [0, yMax / 2, yMax];
+  const ctx = frame(container, { height: 240, yMax, yMin, yTicks: ticks,
+    ariaLabel: "Bars of acres added statewide per day" });
+  const slot = (ctx.width - ctx.left - ctx.right) / (end - start);
+  const barWidth = Math.max(Math.min(slot - 2, 24), 1.5);
+  for (const row of rows) {
+    const value = row.acres_added;
+    if (!value) continue;
+    const y0 = ctx.y(Math.max(value, 0)), y1 = ctx.y(Math.min(value, 0));
+    const h = Math.max(y1 - y0, 1), w = barWidth, x = ctx.x(row.date) - w / 2, r = Math.min(2, w / 2, h);
+    const d = value >= 0
+      ? `M${x} ${y1}V${y0 + r}Q${x} ${y0} ${x + r} ${y0}H${x + w - r}Q${x + w} ${y0} ${x + w} ${y0 + r}V${y1}Z`
+      : `M${x} ${y0}V${y1 - r}Q${x} ${y1} ${x + r} ${y1}H${x + w - r}Q${x + w} ${y1} ${x + w} ${y1 - r}V${y0}Z`;
+    el("svg:path", { d, fill: "var(--s1)" }, ctx.svg);
+  }
+  if (outage.length) {
+    el("svg:text", { x: ctx.x(outage[0]) - 6, y: ctx.top + 12, "text-anchor": "end" }, ctx.svg, "no feed");
+  }
+  crosshair(ctx, container, date => {
+    const row = DATA.statewide.find(d => d.date === date);
+    return {
+      items: row.has_feed_snapshot
+        ? [{ color: "--s1", value: fmt(row.acres_added), label: "acres added" }, { value: fmt(row.tracked_acres_to_date), label: "tracked to date" }]
+        : [{ value: "No snapshot", label: "feed published nothing" }],
+      marks: [],
+    };
+  });
+}
+
+function drawContainment() {
+  const host = document.getElementById("containment");
+  host.replaceChildren();
+  top4.forEach((fire, i) => {
+    const cell = el("div", {}, host);
+    el("div", { class: "panel-title" }, cell, fire.incident_name);
+    el("div", { class: "panel-note" }, cell, `${fmt(fire.latest_percent_contained)}% last known`);
+    const chart = el("div", { class: "chart" }, cell);
+    const ctx = frame(chart, { height: 150, left: 34, right: 6, bottom: 22, yMax: 100, yTicks: [0, 50, 100],
+      yFormat: v => v + "%", ariaLabel: `Percent contained over time for ${fire.incident_name}` });
+    const points = dailyByFire.get(fire.unique_id).filter(r => r.contained != null);
+    el("svg:path", { d: linePath(points, ctx.x, ctx.y, "contained"), fill: "none", stroke: `var(${SERIES[i]})`,
+      "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round" }, ctx.svg);
+    crosshair(ctx, chart, date => {
+      let last = null;
+      for (const row of points) { if (row.date > date) break; last = row; }
+      if (!last) return { items: [{ value: "No value", label: "yet" }], marks: [] };
+      return {
+        items: [{ color: SERIES[i], value: fmt(last.contained) + "%", label: last.contained_carried ? "carried forward" : "contained" }],
+        marks: [{ color: SERIES[i], value: last.contained }],
+      };
+    });
+  });
+}
+
+function table(host, columns, rows) {
+  host.replaceChildren();
+  const tableEl = el("table", {}, host);
+  const head = el("tr", {}, el("thead", {}, tableEl));
+  for (const col of columns) el("th", { class: col.num ? "n" : null, scope: "col" }, head, col.title);
+  const body = el("tbody", {}, tableEl);
+  for (const row of rows) {
+    const tr = el("tr", {}, body);
+    for (const col of columns) el("td", { class: col.num ? "n" : null }, tr, col.value(row));
+  }
+}
+
+function drawStatic() {
+  const q = DATA.quality;
+  const lastDay = DATA.statewide.findLast(d => d.tracked_acres_to_date != null);
+  const biggest = DATA.topFires[0];
+  const fastest = DATA.topFires.filter(f => f.peak_daily_growth_acres != null).reduce((a, b) => (b.peak_daily_growth_acres > a.peak_daily_growth_acres ? b : a));
+  const share = biggest.peak_acres / lastDay.tracked_acres_to_date;
+  document.getElementById("headline").textContent =
+    `${biggest.incident_name} alone was ${Math.round(share * 100)}% of the acreage California's 2021 feed tracked`;
+  document.getElementById("lead").textContent =
+    `Across ${q.snapshot_days} daily snapshots, the feed followed ${q.incidents} incidents, but only ${q.incidents_with_acres} ever reported an acreage. The four largest fires account for most of the total.`;
+  const tiles = document.getElementById("tiles");
+  tiles.replaceChildren();
+  const hero = el("div", { class: "card" }, tiles);
+  el("div", { class: "label" }, hero, "Acres tracked by October 15");
+  el("div", { class: "hero" }, hero, compact(lastDay.tracked_acres_to_date));
+  el("div", { class: "note" }, hero, `${fmt(lastDay.tracked_acres_to_date)} acres across ${fmt(lastDay.fires_with_known_acreage)} fires`);
+  const tile = (label, value, note) => {
+    const card = el("div", { class: "card" }, tiles);
+    el("div", { class: "label" }, card, label);
+    el("div", { class: "value" }, card, value);
+    el("div", { class: "note" }, card, note);
+  };
+  tile("Largest one-day growth", compact(fastest.peak_daily_growth_acres), `${fastest.incident_name}, ${niceDate(fastest.peak_growth_date)}`);
+  tile("Incidents tracked", fmt(q.incidents), `${fmt(q.incidents_with_acres)} ever reported acreage`);
+  tile("Rows missing acreage", `${Math.round(q.null_acres / q.fact_rows * 100)}%`, `${fmt(q.null_acres)} of ${fmt(q.fact_rows)} incident-days`);
+
+  // A tall bar is often a late first report rather than one day of burning, so the chart says so.
+  const spike = DATA.statewide.filter(d => d.acres_added != null).reduce((a, b) => (b.acres_added > a.acres_added ? b : a));
+  const lateFirsts = top4
+    .map(fire => ({ fire, first: dailyByFire.get(fire.unique_id).find(r => r.acres != null) }))
+    .filter(({ first }) => first && first.date === spike.date);
+  if (lateFirsts.length) {
+    const acres = lateFirsts.reduce((sum, { first }) => sum + first.acres, 0);
+    document.getElementById("spike-note").textContent =
+      `${fmt(acres)} of the ${fmt(spike.acres_added)} acres on ${niceDate(spike.date)} came from ${lateFirsts.map(({ fire }) => fire.incident_name).join(" and ")} reporting their first acreage.`;
+  }
+
+  const findings = document.getElementById("findings");
+  findings.replaceChildren();
+  for (const text of [
+    `${fmt(q.null_acres)} of ${fmt(q.fact_rows)} incident-days had no acreage. ${fmt(q.carried_acres)} of those were filled from the fire's last report and flagged. The other ${fmt(q.unknown_acres)} stay unknown, because the fire had not reported yet or never did.`,
+    `The feed published nothing on ${q.missing_days} days, ${outage.map(niceDate).join(", ")}. Those dates stay visible as gaps.`,
+    "One record had an impossible longitude, -11846461. The value became null and was flagged, and the raw record stays in bronze.",
+    "Acreage and containment sometimes fall between reports. Those revisions are kept as published, and drops above 5% raise a warning.",
+    `Tracked acres count only fires present in this feed during the window. An incident outside the feed or missing an acreage adds nothing, so this is not an official season total.`,
+  ]) el("li", {}, findings, text);
+
+  table(document.getElementById("fire-table"), [
+    { title: "Fire", value: r => r.incident_name },
+    { title: "County", value: r => r.county_names || "n/a" },
+    { title: "Peak acres", num: true, value: r => fmt(r.peak_acres) },
+    { title: "Peak daily growth", num: true, value: r => r.peak_daily_growth_acres == null ? "n/a" : `${fmt(r.peak_daily_growth_acres)} (${niceDate(r.peak_growth_date)})` },
+    { title: "Days to 50%", num: true, value: r => r.days_from_start_to_50_percent_contained ?? "n/a" },
+    { title: "Days carried forward", num: true, value: r => `${Math.round(r.share_of_days_carried_forward * 100)}%` },
+  ], DATA.topFires);
+
+  table(document.getElementById("size-table"), [
+    { title: "Date", value: d => d },
+    ...top4.map(fire => ({ title: fire.incident_name, num: true, value: d => fmt(asOf(fire.unique_id, d)?.acres) })),
+  ], allDates);
+
+  table(document.getElementById("added-table"), [
+    { title: "Date", value: d => d.date },
+    { title: "Acres added", num: true, value: d => d.has_feed_snapshot ? fmt(d.acres_added) : "no snapshot" },
+    { title: "Tracked to date", num: true, value: d => fmt(d.tracked_acres_to_date) },
+    { title: "Incidents in feed", num: true, value: d => d.incidents_in_feed ?? "n/a" },
+  ], DATA.statewide);
+}
+
+function drawCharts() { hideTip(); drawSize(); drawAdded(); drawContainment(); }
+drawStatic();
+drawCharts();
+let resizeTimer;
+addEventListener("resize", () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(drawCharts, 120); });
+</script>
+</body>
+</html>

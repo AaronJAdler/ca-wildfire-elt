@@ -1,0 +1,72 @@
+version: 2
+
+models:
+  - name: int_incident_daily_filled
+    description: Daily incident measures with nulls carried forward and flagged.
+    columns:
+      - name: acres_change
+        description: Change since the incident's previous snapshot. Negative means a revision.
+
+  - name: int_incident_versions
+    description: Attribute history derived from bronze. Used to verify the dbt snapshot.
+    data_tests:
+      - unique_combination:
+          arguments:
+            columns: [unique_id, version_number]
+
+unit_tests:
+  - name: carries_last_reported_value_across_nulls
+    description: A null keeps the last value and is flagged. It must never count as zero growth.
+    model: int_incident_daily_filled
+    given:
+      - input: ref('stg_incidents__snapshots')
+        rows:
+          - {unique_id: a, snapshot_date: 2021-08-01, acres_reported: 100, percent_contained_reported: 5}
+          - {unique_id: a, snapshot_date: 2021-08-02, acres_reported: null, percent_contained_reported: null}
+          - {unique_id: a, snapshot_date: 2021-08-03, acres_reported: 150, percent_contained_reported: 10}
+    expect:
+      rows:
+        - {snapshot_date: 2021-08-01, acres_burned: 100, percent_contained: 5, acres_is_carried_forward: false, acres_change: null, acres_change_is_single_day: false}
+        - {snapshot_date: 2021-08-02, acres_burned: 100, percent_contained: 5, acres_is_carried_forward: true, acres_change: 0, acres_change_is_single_day: false}
+        - {snapshot_date: 2021-08-03, acres_burned: 150, percent_contained: 10, acres_is_carried_forward: false, acres_change: 50, acres_change_is_single_day: false}
+
+  - name: consecutive_reports_count_as_single_day_growth
+    description: Only a value reported on two consecutive dates is a true one-day change.
+    model: int_incident_daily_filled
+    given:
+      - input: ref('stg_incidents__snapshots')
+        rows:
+          - {unique_id: a, snapshot_date: 2021-08-01, acres_reported: 100}
+          - {unique_id: a, snapshot_date: 2021-08-02, acres_reported: 130}
+          - {unique_id: a, snapshot_date: 2021-08-05, acres_reported: 200}
+    expect:
+      rows:
+        - {snapshot_date: 2021-08-01, acres_change: null, acres_change_is_single_day: false}
+        - {snapshot_date: 2021-08-02, acres_change: 30, acres_change_is_single_day: true}
+        - {snapshot_date: 2021-08-05, acres_change: 70, acres_change_is_single_day: false}
+
+  - name: leading_nulls_stay_null
+    description: An incident with no value yet has unknown acreage, which is different from zero.
+    model: int_incident_daily_filled
+    given:
+      - input: ref('stg_incidents__snapshots')
+        rows:
+          - {unique_id: b, snapshot_date: 2021-08-01, acres_reported: null, percent_contained_reported: null}
+          - {unique_id: b, snapshot_date: 2021-08-02, acres_reported: 40, percent_contained_reported: 0}
+    expect:
+      rows:
+        - {snapshot_date: 2021-08-01, acres_burned: null, acres_is_carried_forward: false, acres_change: null}
+        - {snapshot_date: 2021-08-02, acres_burned: 40, acres_is_carried_forward: false, acres_change: null}
+
+  - name: incidents_do_not_share_history
+    description: Filling one fire must never use another fire's values.
+    model: int_incident_daily_filled
+    given:
+      - input: ref('stg_incidents__snapshots')
+        rows:
+          - {unique_id: a, snapshot_date: 2021-08-01, acres_reported: 500}
+          - {unique_id: b, snapshot_date: 2021-08-02, acres_reported: null}
+    expect:
+      rows:
+        - {unique_id: a, acres_burned: 500}
+        - {unique_id: b, acres_burned: null}

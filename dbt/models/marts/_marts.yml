@@ -1,0 +1,101 @@
+version: 2
+
+models:
+  - name: fct_incident_daily
+    description: >
+      Periodic snapshot fact. Grain is one row per incident per snapshot date. Acres and
+      containment are semi-additive, so do not sum them across dates.
+    config:
+      contract: {enforced: false}
+    data_tests:
+      - unique_combination:
+          arguments:
+            columns: [unique_id, snapshot_date]
+    columns:
+      - name: incident_daily_sk
+        data_tests: [unique, not_null]
+      - name: incident_version_sk
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_incident')
+                field: incident_version_sk
+      - name: date_sk
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_date')
+                field: date_sk
+      - name: percent_contained
+        data_tests:
+          - in_range:
+              arguments: {min_value: 0, max_value: 100}
+
+  - name: dim_incident
+    description: SCD type 2 incident attributes, built from the dbt snapshot.
+    data_tests:
+      - no_overlapping_versions:
+          arguments:
+            key: unique_id
+            valid_from: valid_from
+            valid_to: valid_to
+      - one_current_version:
+          arguments:
+            key: unique_id
+            flag: is_current
+    columns:
+      - name: incident_version_sk
+        data_tests: [unique, not_null]
+      - name: incident_name
+        data_tests: [not_null]
+
+  - name: dim_date
+    columns:
+      - name: date_sk
+        data_tests: [unique, not_null]
+      - name: calendar_date
+        data_tests: [unique, not_null]
+
+  - name: dim_county
+    columns:
+      - name: county_id
+        data_tests: [unique, not_null]
+      - name: county_name
+        data_tests: [unique, not_null]
+
+  - name: bridge_incident_county
+    description: Incident-to-county many-to-many bridge. Use for counts, not for summing acres.
+    data_tests:
+      - unique_combination:
+          arguments:
+            columns: [unique_id, county_id]
+    columns:
+      - name: county_id
+        description: The feed's IDs must resolve to one of California's 58 counties.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_county')
+                field: county_id
+
+  - name: mart_incident_season
+    description: One row per incident with its peak, containment timing, and data-quality share.
+    columns:
+      - name: unique_id
+        data_tests: [unique, not_null]
+      - name: share_of_days_carried_forward
+        data_tests:
+          - in_range:
+              arguments: {min_value: 0, max_value: 1}
+
+  - name: mart_statewide_daily
+    description: Statewide totals per calendar date. Each fire counts once per date.
+    columns:
+      - name: calendar_date
+        data_tests: [unique, not_null]
+
+seeds:
+  - name: ca_counties
+    description: California's 58 counties, numbered as the feed's CountyIds field numbers them.

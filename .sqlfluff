@@ -1,0 +1,15 @@
+[sqlfluff]
+dialect = duckdb
+templater = jinja
+max_line_length = 110
+exclude_rules = LT05, ST06, AM04, RF04
+sql_file_exts = .sql
+
+[sqlfluff:templater:jinja]
+apply_dbt_builtins = True
+load_macros_from_path = dbt/macros
+
+[sqlfluff:templater:jinja:context]
+run_date = 2021-07-15
+season_start = 2021-07-15
+season_end = 2021-10-15

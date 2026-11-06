@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+data/local/
+dbt/target/
+dbt/logs/
+logs/
+*.duckdb
+*.duckdb.wal
+dbt/.user.yml

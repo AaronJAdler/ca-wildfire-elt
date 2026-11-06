@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+env:
+  WILDFIRE_DATA_DIR: ${{ github.workspace }}/.ci-data
+  CI_SAMPLE_END: "2021-07-20"
+
+jobs:
+  python:
+    name: Lint and unit tests
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: astral-sh/setup-uv@d0d8abe699bfb85fec6de9f7adb5ae17292296ff # v6
+        with:
+          enable-cache: true
+      - run: uv sync --frozen
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run mypy
+      - run: uv run sqlfluff lint dbt/models
+      - run: uv run pytest
+
+  changed-models:
+    # On a pull request, build the base branch on sample data, then build and test only what the
+    # pull request changed and everything downstream. No external warehouse is needed.
+    name: Build changed dbt models
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@d0d8abe699bfb85fec6de9f7adb5ae17292296ff # v6
+        with:
+          enable-cache: true
+      - run: uv sync --frozen
+      - name: Build the base branch on a sample
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: bash scripts/ci_changed_models.sh "$BASE_SHA"
+
+  full-sample:
+    # On main, run the sample from an empty warehouse so a broken clean build is caught quickly.
+    name: Clean build on sample data
+    if: github.event_name == 'push'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: astral-sh/setup-uv@d0d8abe699bfb85fec6de9f7adb5ae17292296ff # v6
+        with:
+          enable-cache: true
+      - run: uv sync --frozen
+      - run: uv run wildfire replay --start 2021-07-15 --end "$CI_SAMPLE_END"

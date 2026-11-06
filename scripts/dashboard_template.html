@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>California Fire Season 2021</title>
+<style>
+:root {
+  color-scheme: light;
+  --page: #f9f9f7; --surface: #fcfcfb; --ink: #0b0b0b; --ink-2: #52514e; --muted: #6f6d68;
+  --grid: #e1e0d9; --axis: #c3c2b7; --ring: rgba(11,11,11,.10);
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --critical: #d03b3b;
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink-2: #c3c2b7; --muted: #a3a29b;
+    --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,.10);
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink-2: #c3c2b7; --muted: #a3a29b;
+  --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,.10);
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--page); color: var(--ink);
+  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+main { max-width: 1040px; margin: 0 auto; padding: 32px 16px 56px; }
+h1 { font-size: 26px; line-height: 1.25; font-weight: 650; margin: 0 0 6px; max-width: 34em; text-wrap: balance; }
+h2 { font-size: 16px; font-weight: 650; margin: 0 0 2px; }
+.lead { color: var(--ink-2); margin: 0 0 24px; max-width: 46em; }
+.hero-row { display: grid; grid-template-columns: 1.5fr repeat(3, 1fr); gap: 12px; margin-bottom: 12px; }
+.card {
+  background: var(--surface); border: 1px solid var(--ring); border-radius: 10px;
+  padding: 16px; min-width: 0; margin-bottom: 12px;
+}
+.hero-row .card { margin: 0; }
+.label { color: var(--ink-2); font-size: 13px; }
+.hero { font-size: 48px; font-weight: 650; line-height: 1.1; margin-top: 4px; }
+.value { font-size: 26px; font-weight: 650; line-height: 1.2; margin-top: 8px; }
+.note { color: var(--muted); font-size: 12.5px; margin-top: 4px; }
+.sub { color: var(--ink-2); font-size: 13.5px; margin: 0 0 10px; }
+.chart { position: relative; width: 100%; touch-action: pan-y; }
+.chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 13px; color: var(--ink-2); margin-bottom: 8px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.key { display: inline-block; width: 14px; height: 2px; border-radius: 1px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.panel-title { font-size: 13px; font-weight: 600; }
+.panel-note { font-size: 12.5px; color: var(--ink-2); margin-bottom: 4px; }
+text { font: 11.5px system-ui, -apple-system, "Segoe UI", sans-serif; fill: var(--muted); font-variant-numeric: tabular-nums; }
+text.direct { fill: var(--ink-2); font-size: 12px; }
+#tooltip {
+  position: fixed; z-index: 10; pointer-events: none; display: none; min-width: 150px; max-width: 280px;
+  background: var(--surface); border: 1px solid var(--axis); border-radius: 8px; padding: 8px 10px;
+  box-shadow: 0 4px 16px rgba(0,0,0,.14); font-size: 12.5px;
+}
+#tooltip .when { color: var(--ink-2); margin-bottom: 4px; }
+#tooltip .row { display: flex; align-items: center; gap: 7px; }
+#tooltip .row strong { font-variant-numeric: tabular-nums; }
+#tooltip .row small { color: var(--ink-2); font-size: 12px; }
+details { margin-top: 10px; font-size: 13px; }
+summary { cursor: pointer; color: var(--ink-2); }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th { text-align: left; font-weight: 600; color: var(--ink-2); border-bottom: 1px solid var(--axis); padding: 6px 10px 6px 0; white-space: nowrap; }
+td { border-bottom: 1px solid var(--grid); padding: 6px 10px 6px 0; }
+th.n, td.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+ul.findings { margin: 8px 0 0; padding-left: 18px; }
+ul.findings li { margin-bottom: 6px; }
+footer { color: var(--muted); font-size: 12.5px; margin-top: 18px; }
+footer a { color: inherit; }
+@media (max-width: 760px) {
+  .hero-row { grid-template-columns: 1fr 1fr; }
+  .hero-row .card:first-child { grid-column: 1 / -1; }
+  .grid-4 { grid-template-columns: 1fr 1fr; }
+  .hero { font-size: 40px; }
+}
+</style>
+</head>
+<body>
+<main>
+  <h1 id="headline"></h1>
+  <p class="lead" id="lead"></p>
+  <section class="hero-row" id="tiles" aria-label="Season totals"></section>
+
+  <section class="card">
+    <h2>Fire size over the season</h2>
+    <p class="sub">Latest known acreage for the four largest fires. A fire's line holds its last value on days the feed gave none.</p>
+    <div class="legend" id="size-legend"></div>
+    <div class="chart" id="size-chart"></div>
+    <details><summary>Table view</summary><div class="scroll" id="size-table"></div></details>
+  </section>
+
+  <section class="card">
+    <h2>Acres added statewide per day</h2>
+    <p class="sub">Each fire counts once per day, on the day its acreage is reported. A bar can therefore hold many days of growth, and the shaded band marks days the feed published nothing. <span id="spike-note"></span></p>
+    <div class="chart" id="added-chart"></div>
+    <details><summary>Table view</summary><div class="scroll" id="added-table"></div></details>
+  </section>
+
+  <section class="card">
+    <h2>Containment progress</h2>
+    <p class="sub">Percent contained, on one scale. The figure can fall when a fire's perimeter grows.</p>
+    <div class="grid-4" id="containment"></div>
+  </section>
+
+  <section class="card">
+    <h2>Largest fires in the feed</h2>
+    <p class="sub">Peak daily growth uses only values reported on two consecutive days. Days to 50% count from the fire's start date.</p>
+    <div class="scroll" id="fire-table"></div>
+  </section>
+
+  <section class="card">
+    <h2>How far to trust this data</h2>
+    <ul class="findings" id="findings"></ul>
+  </section>
+
+  <footer>
+    Source: CAL FIRE incident feed, as recorded by
+    <a href="https://github.com/simonw/ca-fires-history">simonw/ca-fires-history</a>.
+    Figures cover only what that feed published from July 15 to October 15, 2021. They are not official season totals.
+  </footer>
+</main>
+<div id="tooltip" role="status"></div>
+
+<script id="data" type="application/json">__DATA__</script>
+<script>
+"use strict";
+const DATA = JSON.parse(document.getElementById("data").textContent);
+const SERIES = ["--s1", "--s2", "--s3", "--s4"];
+const top4 = DATA.topFires.slice(0, 4);
+const fmt = n => n == null ? "n/a" : Math.round(n).toLocaleString("en-US");
+const compact = n => {
+  const a = Math.abs(n);
+  if (a >= 1e6) return (n / 1e6).toFixed(a % 1e6 === 0 ? 0 : 1) + "M";
+  if (a >= 1e4) return Math.round(n / 1e3) + "K";
+  return fmt(n);
+};
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const dayNumber = iso => Date.parse(iso + "T00:00:00Z") / 864e5;
+const niceDate = iso => `${MONTHS[+iso.slice(5, 7) - 1]} ${+iso.slice(8)}`;
+const SVG = "http://www.w3.org/2000/svg";
+
+function el(tag, attrs = {}, parent, text) {
+  const node = tag.startsWith("svg:")
+    ? document.createElementNS(SVG, tag.slice(4)) : document.createElement(tag);
+  for (const [key, value] of Object.entries(attrs)) if (value != null) node.setAttribute(key, value);
+  if (text != null) node.textContent = text;
+  if (parent) parent.appendChild(node);
+  return node;
+}
+function niceMax(value) {
+  const power = 10 ** Math.floor(Math.log10(value || 1));
+  for (const step of [1, 1.5, 2, 2.5, 3, 4, 5, 7.5, 10]) if (step * power >= value) return step * power;
+  return value;
+}
+
+const tooltip = document.getElementById("tooltip");
+function showTip(event, when, items) {
+  tooltip.replaceChildren();
+  el("div", { class: "when" }, tooltip, when);
+  for (const item of items) {
+    const row = el("div", { class: "row" }, tooltip);
+    if (item.color) el("span", { class: "key", style: `background:var(${item.color})` }, row);
+    el("strong", {}, row, item.value);
+    el("small", {}, row, item.label);
+  }
+  tooltip.style.display = "block";
+  const box = tooltip.getBoundingClientRect();
+  const x = Math.min(event.clientX + 14, innerWidth - box.width - 8);
+  const y = Math.min(event.clientY + 14, innerHeight - box.height - 8);
+  tooltip.style.left = Math.max(8, x) + "px";
+  tooltip.style.top = Math.max(8, y) + "px";
+}
+const hideTip = () => { tooltip.style.display = "none"; };
+
+const allDates = DATA.statewide.map(d => d.date);
+const start = dayNumber(allDates[0]), end = dayNumber(allDates.at(-1));
+const monthTicks = ["2021-08-01", "2021-09-01", "2021-10-01"];
+const outage = DATA.statewide.filter(d => !d.has_feed_snapshot).map(d => d.date);
+
+function frame(container, opts) {
+  const width = Math.max(container.clientWidth, 200);
+  const { height, left = 44, right = 12, top = 10, bottom = 24, yMax, yMin = 0, yTicks, yFormat = compact, ariaLabel } = opts;
+  const svg = el("svg:svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": ariaLabel }, container);
+  const x = day => left + (dayNumber(day) - start) / (end - start) * (width - left - right);
+  const y = v => top + (1 - (v - yMin) / (yMax - yMin)) * (height - top - bottom);
+  for (const date of outage.length ? [outage] : []) {
+    el("svg:rect", {
+      x: x(date[0]) - 1, y: top, width: Math.max(x(date.at(-1)) - x(date[0]) + 2, 4),
+      height: height - top - bottom, fill: "var(--grid)", opacity: .7,
+    }, svg);
+  }
+  for (const tick of yTicks) {
+    el("svg:line", { x1: left, x2: width - right, y1: y(tick), y2: y(tick),
+      stroke: tick === 0 ? "var(--axis)" : "var(--grid)", "stroke-width": 1 }, svg);
+    el("svg:text", { x: left - 6, y: y(tick) + 4, "text-anchor": "end" }, svg, yFormat(tick));
+  }
+  for (const tick of monthTicks) {
+    if (dayNumber(tick) < start || dayNumber(tick) > end) continue;
+    el("svg:text", { x: x(tick), y: height - 6, "text-anchor": "middle" }, svg, niceDate(tick).split(" ")[0] + " 1");
+  }
+  return { svg, x, y, width, left, right, top, bottom, height };
+}
+
+function linePath(points, x, y, key) {
+  let path = "", open = false;
+  for (const point of points) {
+    if (point[key] == null) { open = false; continue; }
+    path += `${open ? "L" : "M"}${x(point.date).toFixed(1)} ${y(point[key]).toFixed(1)}`;
+    open = true;
+  }
+  return path;
+}
+
+function crosshair(ctx, container, readout) {
+  const line = el("svg:line", { y1: ctx.top, y2: ctx.height - ctx.bottom, stroke: "var(--axis)", "stroke-width": 1, visibility: "hidden" }, ctx.svg);
+  const dots = el("svg:g", {}, ctx.svg);
+  const zone = el("svg:rect", {
+    x: ctx.left, y: ctx.top, width: ctx.width - ctx.left - ctx.right, height: ctx.height - ctx.top - ctx.bottom,
+    fill: "transparent", tabindex: 0, "aria-label": "Chart values. Use the left and right arrow keys to move by day.",
+  }, ctx.svg);
+  let index = allDates.length - 1;
+  const render = event => {
+    const date = allDates[index];
+    line.setAttribute("x1", ctx.x(date)); line.setAttribute("x2", ctx.x(date));
+    line.setAttribute("visibility", "visible");
+    const { items, marks } = readout(date);
+    dots.replaceChildren();
+    for (const mark of marks) {
+      el("svg:circle", { cx: ctx.x(date), cy: ctx.y(mark.value), r: 4, fill: `var(${mark.color})`, stroke: "var(--surface)", "stroke-width": 2 }, dots);
+    }
+    showTip(event, niceDate(date), items);
+  };
+  zone.addEventListener("pointermove", event => {
+    const rect = ctx.svg.getBoundingClientRect();
+    const px = (event.clientX - rect.left) * ctx.width / rect.width;
+    const day = start + (px - ctx.left) / (ctx.width - ctx.left - ctx.right) * (end - start);
+    index = Math.max(0, Math.min(allDates.length - 1, Math.round(day - start)));
+    render(event);
+  });
+  const clear = () => { hideTip(); line.setAttribute("visibility", "hidden"); dots.replaceChildren(); };
+  zone.addEventListener("pointerleave", clear);
+  zone.addEventListener("blur", clear);
+  zone.addEventListener("keydown", event => {
+    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+    event.preventDefault();
+    index = Math.max(0, Math.min(allDates.length - 1, index + (event.key === "ArrowLeft" ? -1 : 1)));
+    const rect = ctx.svg.getBoundingClientRect();
+    render({ clientX: rect.left + ctx.x(allDates[index]) * rect.width / ctx.width, clientY: rect.top + 20 });
+  });
+}
+
+const dailyByFire = new Map(top4.map(fire => [fire.unique_id, DATA.fireDaily.filter(r => r.unique_id === fire.unique_id)]));
+function asOf(fireId, date) {
+  let last = null;
+  for (const row of dailyByFire.get(fireId)) { if (row.date > date) break; if (row.acres != null) last = row; }
+  return last;
+}
+
+function drawSize() {
+  const container = document.getElementById("size-chart");
+  container.replaceChildren();
+  const legend = document.getElementById("size-legend");
+  legend.replaceChildren();
+  top4.forEach((fire, i) => {
+    const entry = el("span", {}, legend);
+    el("span", { class: "key", style: `background:var(${SERIES[i]})` }, entry);
+    entry.appendChild(document.createTextNode(fire.incident_name));
+  });
+  const yMax = niceMax(Math.max(...top4.map(f => f.peak_acres)));
+  const narrow = container.clientWidth < 560;
+  const ctx = frame(container, {
+    height: narrow ? 260 : 320, right: narrow ? 12 : 104, yMax, yTicks: [0, .25, .5, .75, 1].map(t => t * yMax),
+    ariaLabel: `Acreage over time for ${top4.map(f => f.incident_name).join(", ")}`,
+  });
+  top4.forEach((fire, i) => {
+    const points = dailyByFire.get(fire.unique_id).filter(r => r.acres != null);
+    el("svg:path", { d: linePath(points, ctx.x, ctx.y, "acres"), fill: "none", stroke: `var(${SERIES[i]})`,
+      "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round" }, ctx.svg);
+    const last = points.at(-1);
+    el("svg:circle", { cx: ctx.x(last.date), cy: ctx.y(last.acres), r: 4, fill: `var(${SERIES[i]})`, stroke: "var(--surface)", "stroke-width": 2 }, ctx.svg);
+    if (!narrow) {
+      // Ends of the three smaller fires sit close together, so each gets its own label line.
+      const offsets = { 0: 4, 1: -8, 2: 6, 3: 18 };
+      el("svg:text", { class: "direct", x: ctx.x(last.date) + 8, y: ctx.y(last.acres) + offsets[i] }, ctx.svg, fire.incident_name);
+    }
+  });
+  crosshair(ctx, container, date => {
+    const rows = top4.map((fire, i) => ({ fire, i, row: asOf(fire.unique_id, date) })).filter(r => r.row);
+    return {
+      items: rows.map(({ fire, i, row }) => ({ color: SERIES[i], value: fmt(row.acres), label: fire.incident_name })),
+      marks: rows.map(({ i, row }) => ({ color: SERIES[i], value: row.acres })),
+    };
+  });
+}
+
+function drawAdded() {
+  const container = document.getElementById("added-chart");
+  container.replaceChildren();
+  const rows = DATA.statewide.filter(d => d.acres_added != null);
+  const yMax = niceMax(Math.max(...rows.map(d => d.acres_added)));
+  // Downward revisions are tiny next to the peaks, so they get room but no tick of their own.
+  const yMin = Math.min(0, ...rows.map(d => d.acres_added));
+  const ticks = [0, yMax / 2, yMax];
+  const ctx = frame(container, { height: 240, yMax, yMin, yTicks: ticks,
+    ariaLabel: "Bars of acres added statewide per day" });
+  const slot = (ctx.width - ctx.left - ctx.right) / (end - start);
+  const barWidth = Math.max(Math.min(slot - 2, 24), 1.5);
+  for (const row of rows) {
+    const value = row.acres_added;
+    if (!value) continue;
+    const y0 = ctx.y(Math.max(value, 0)), y1 = ctx.y(Math.min(value, 0));
+    const h = Math.max(y1 - y0, 1), w = barWidth, x = ctx.x(row.date) - w / 2, r = Math.min(2, w / 2, h);
+    const d = value >= 0
+      ? `M${x} ${y1}V${y0 + r}Q${x} ${y0} ${x + r} ${y0}H${x + w - r}Q${x + w} ${y0} ${x + w} ${y0 + r}V${y1}Z`
+      : `M${x} ${y0}V${y1 - r}Q${x} ${y1} ${x + r} ${y1}H${x + w - r}Q${x + w} ${y1} ${x + w} ${y1 - r}V${y0}Z`;
+    el("svg:path", { d, fill: "var(--s1)" }, ctx.svg);
+  }
+  if (outage.length) {
+    el("svg:text", { x: ctx.x(outage[0]) - 6, y: ctx.top + 12, "text-anchor": "end" }, ctx.svg, "no feed");
+  }
+  crosshair(ctx, container, date => {
+    const row = DATA.statewide.find(d => d.date === date);
+    return {
+      items: row.has_feed_snapshot
+        ? [{ color: "--s1", value: fmt(row.acres_added), label: "acres added" }, { value: fmt(row.tracked_acres_to_date), label: "tracked to date" }]
+        : [{ value: "No snapshot", label: "feed published nothing" }],
+      marks: [],
+    };
+  });
+}
+
+function drawContainment() {
+  const host = document.getElementById("containment");
+  host.replaceChildren();
+  top4.forEach((fire, i) => {
+    const cell = el("div", {}, host);
+    el("div", { class: "panel-title" }, cell, fire.incident_name);
+    el("div", { class: "panel-note" }, cell, `${fmt(fire.latest_percent_contained)}% last known`);
+    const chart = el("div", { class: "chart" }, cell);
+    const ctx = frame(chart, { height: 150, left: 34, right: 6, bottom: 22, yMax: 100, yTicks: [0, 50, 100],
+      yFormat: v => v + "%", ariaLabel: `Percent contained over time for ${fire.incident_name}` });
+    const points = dailyByFire.get(fire.unique_id).filter(r => r.contained != null);
+    el("svg:path", { d: linePath(points, ctx.x, ctx.y, "contained"), fill: "none", stroke: `var(${SERIES[i]})`,
+      "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round" }, ctx.svg);
+    crosshair(ctx, chart, date => {
+      let last = null;
+      for (const row of points) { if (row.date > date) break; last = row; }
+      if (!last) return { items: [{ value: "No value", label: "yet" }], marks: [] };
+      return {
+        items: [{ color: SERIES[i], value: fmt(last.contained) + "%", label: last.contained_carried ? "carried forward" : "contained" }],
+        marks: [{ color: SERIES[i], value: last.contained }],
+      };
+    });
+  });
+}
+
+function table(host, columns, rows) {
+  host.replaceChildren();
+  const tableEl = el("table", {}, host);
+  const head = el("tr", {}, el("thead", {}, tableEl));
+  for (const col of columns) el("th", { class: col.num ? "n" : null, scope: "col" }, head, col.title);
+  const body = el("tbody", {}, tableEl);
+  for (const row of rows) {
+    const tr = el("tr", {}, body);
+    for (const col of columns) el("td", { class: col.num ? "n" : null }, tr, col.value(row));
+  }
+}
+
+function drawStatic() {
+  const q = DATA.quality;
+  const lastDay = DATA.statewide.findLast(d => d.tracked_acres_to_date != null);
+  const biggest = DATA.topFires[0];
+  const fastest = DATA.topFires.filter(f => f.peak_daily_growth_acres != null).reduce((a, b) => (b.peak_daily_growth_acres > a.peak_daily_growth_acres ? b : a));
+  const share = biggest.peak_acres / lastDay.tracked_acres_to_date;
+  document.getElementById("headline").textContent =
+    `${biggest.incident_name} alone was ${Math.round(share * 100)}% of the acreage California's 2021 feed tracked`;
+  document.getElementById("lead").textContent =
+    `Across ${q.snapshot_days} daily snapshots, the feed followed ${q.incidents} incidents, but only ${q.incidents_with_acres} ever reported an acreage. The four largest fires account for most of the total.`;
+  const tiles = document.getElementById("tiles");
+  tiles.replaceChildren();
+  const hero = el("div", { class: "card" }, tiles);
+  el("div", { class: "label" }, hero, "Acres tracked by October 15");
+  el("div", { class: "hero" }, hero, compact(lastDay.tracked_acres_to_date));
+  el("div", { class: "note" }, hero, `${fmt(lastDay.tracked_acres_to_date)} acres across ${fmt(lastDay.fires_with_known_acreage)} fires`);
+  const tile = (label, value, note) => {
+    const card = el("div", { class: "card" }, tiles);
+    el("div", { class: "label" }, card, label);
+    el("div", { class: "value" }, card, value);
+    el("div", { class: "note" }, card, note);
+  };
+  tile("Largest one-day growth", compact(fastest.peak_daily_growth_acres), `${fastest.incident_name}, ${niceDate(fastest.peak_growth_date)}`);
+  tile("Incidents tracked", fmt(q.incidents), `${fmt(q.incidents_with_acres)} ever reported acreage`);
+  tile("Rows missing acreage", `${Math.round(q.null_acres / q.fact_rows * 100)}%`, `${fmt(q.null_acres)} of ${fmt(q.fact_rows)} incident-days`);
+
+  // A tall bar is often a late first report rather than one day of burning, so the chart says so.
+  const spike = DATA.statewide.filter(d => d.acres_added != null).reduce((a, b) => (b.acres_added > a.acres_added ? b : a));
+  const lateFirsts = top4
+    .map(fire => ({ fire, first: dailyByFire.get(fire.unique_id).find(r => r.acres != null) }))
+    .filter(({ first }) => first && first.date === spike.date);
+  if (lateFirsts.length) {
+    const acres = lateFirsts.reduce((sum, { first }) => sum + first.acres, 0);
+    document.getElementById("spike-note").textContent =
+      `${fmt(acres)} of the ${fmt(spike.acres_added)} acres on ${niceDate(spike.date)} came from ${lateFirsts.map(({ fire }) => fire.incident_name).join(" and ")} reporting their first acreage.`;
+  }
+
+  const findings = document.getElementById("findings");
+  findings.replaceChildren();
+  for (const text of [
+    `${fmt(q.null_acres)} of ${fmt(q.fact_rows)} incident-days had no acreage. ${fmt(q.carried_acres)} of those were filled from the fire's last report and flagged. The other ${fmt(q.unknown_acres)} stay unknown, because the fire had not reported yet or never did.`,
+    `The feed published nothing on ${q.missing_days} days, ${outage.map(niceDate).join(", ")}. Those dates stay visible as gaps.`,
+    "One record had an impossible longitude, -11846461. The value became null and was flagged, and the raw record stays in bronze.",
+    "Acreage and containment sometimes fall between reports. Those revisions are kept as published, and drops above 5% raise a warning.",
+    `Tracked acres count only fires present in this feed during the window. An incident outside the feed or missing an acreage adds nothing, so this is not an official season total.`,
+  ]) el("li", {}, findings, text);
+
+  table(document.getElementById("fire-table"), [
+    { title: "Fire", value: r => r.incident_name },
+    { title: "County", value: r => r.county_names || "n/a" },
+    { title: "Peak acres", num: true, value: r => fmt(r.peak_acres) },
+    { title: "Peak daily growth", num: true, value: r => r.peak_daily_growth_acres == null ? "n/a" : `${fmt(r.peak_daily_growth_acres)} (${niceDate(r.peak_growth_date)})` },
+    { title: "Days to 50%", num: true, value: r => r.days_from_start_to_50_percent_contained ?? "n/a" },
+    { title: "Days carried forward", num: true, value: r => `${Math.round(r.share_of_days_carried_forward * 100)}%` },
+  ], DATA.topFires);
+
+  table(document.getElementById("size-table"), [
+    { title: "Date", value: d => d },
+    ...top4.map(fire => ({ title: fire.incident_name, num: true, value: d => fmt(asOf(fire.unique_id, d)?.acres) })),
+  ], allDates);
+
+  table(document.getElementById("added-table"), [
+    { title: "Date", value: d => d.date },
+    { title: "Acres added", num: true, value: d => d.has_feed_snapshot ? fmt(d.acres_added) : "no snapshot" },
+    { title: "Tracked to date", num: true, value: d => fmt(d.tracked_acres_to_date) },
+    { title: "Incidents in feed", num: true, value: d => d.incidents_in_feed ?? "n/a" },
+  ], DATA.statewide);
+}
+
+function drawCharts() { hideTip(); drawSize(); drawAdded(); drawContainment(); }
+drawStatic();
+drawCharts();
+let resizeTimer;
+addEventListener("resize", () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(drawCharts, 120); });
+</script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+name: wildfire
+version: "0.1.0"
+profile: wildfire
+config-version: 2
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+snapshot-paths: ["snapshots"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+
+vars:
+  # The logical date a run is responsible for. Leave null to rebuild all history.
+  run_date: null
+  season_start: "2021-07-15"
+  season_end: "2021-10-15"
+
+models:
+  wildfire:
+    staging:
+      +materialized: view
+    intermediate:
+      +materialized: view
+    marts:
+      +materialized: table
+
+data_tests:
+  +severity: error
+
+flags:
+  send_anonymous_usage_stats: false

@@ -1,0 +1,37 @@
+version: 2
+
+models:
+  - name: stg_incidents__snapshots
+    description: Typed feed snapshots. Grain is one row per incident per snapshot date.
+    data_tests:
+      - unique_combination:
+          arguments:
+            columns: [unique_id, snapshot_date]
+    columns:
+      - name: incident_name
+        data_tests: [not_null]
+      - name: started_at
+        description: A null here would mean the feed changed its timestamp format.
+        data_tests: [not_null]
+      - name: source_updated_at
+        data_tests: [not_null]
+      - name: percent_contained_reported
+        data_tests:
+          - in_range:
+              arguments: {min_value: 0, max_value: 100}
+      - name: acres_reported
+        data_tests:
+          - in_range:
+              arguments: {min_value: 0, max_value: 5000000}
+      - name: latitude
+        description: Null when the feed's value falls outside California's bounding box.
+      - name: longitude
+        description: Null when the feed's value falls outside California's bounding box.
+      - name: has_invalid_coordinates
+        description: A warning test reports these rows, because the source data needs a human look.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [false]
+              config:
+                severity: warn
